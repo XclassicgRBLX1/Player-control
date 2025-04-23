@@ -7,11 +7,6 @@ local Lighting = game:GetService("Lighting")
 local Camera = workspace.CurrentCamera
 local TweenService = game:GetService("TweenService")
 
--- Initialize hitbox environment variable
-getgenv().HBE = false -- Controls whether hitboxes are active
-local HITBOX_SIZE = Vector3.new(15, 15, 15) -- Default hitbox size
-local HITBOX_COLOUR = Color3.fromRGB(255, 0, 0) -- Default hitbox color
-
 -- Create GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player.PlayerGui
@@ -318,7 +313,7 @@ playerAimlockButtonStroke.Parent = playerAimlockButton
 
 -- Hover effect for Player Aimlock Button
 playerAimlockButton.MouseEnter:Connect(function()
-    playerAimlockButton.BackgroundColor3 = playerAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+    playerAimlockButton.BackgroundColor3 = playerAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, rell255, 255), 0.2)
 end)
 playerAimlockButton.MouseLeave:Connect(function()
     playerAimlockButton.BackgroundColor3 = playerAimlockButton.Text == "Player Aimlock Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
@@ -384,14 +379,6 @@ ignoreWallsButton.MouseLeave:Connect(function()
     ignoreWallsButton.BackgroundColor3 = ignoreWallsButton.Text == "Ignore Walls Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
 end)
 
--- Create Separator for Hitbox Section
-local hitboxSeparator = Instance.new("Frame")
-hitboxSeparator.Size = UDim2.new(1, 0, 0, 2)
-hitboxSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
-hitboxSeparator.BorderSizePixel = 0
-hitboxSeparator.LayoutOrder = 15
-hitboxSeparator.Parent = scrollingFrame
-
 -- Create TextBox for Hitbox Size
 local hitboxSizeTextBox = Instance.new("TextBox")
 hitboxSizeTextBox.Size = UDim2.new(1, 0, 0, 35)
@@ -399,11 +386,11 @@ hitboxSizeTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 hitboxSizeTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
 hitboxSizeTextBox.PlaceholderText = "Enter hitbox size"
 hitboxSizeTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-hitboxSizeTextBox.Text = "15"
+hitboxSizeTextBox.Text = "20"
 hitboxSizeTextBox.TextSize = 16
 hitboxSizeTextBox.Font = Enum.Font.Gotham
 hitboxSizeTextBox.TextScaled = true
-hitboxSizeTextBox.LayoutOrder = 16
+hitboxSizeTextBox.LayoutOrder = 15
 hitboxSizeTextBox.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to Hitbox Size TextBox
@@ -415,6 +402,30 @@ local hitboxSizeTextBoxStroke = Instance.new("UIStroke")
 hitboxSizeTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
 hitboxSizeTextBoxStroke.Thickness = 1
 hitboxSizeTextBoxStroke.Parent = hitboxSizeTextBox
+
+-- Create TextBox for Hitbox Team Exclusions
+local hitboxTeamTextBox = Instance.new("TextBox")
+hitboxTeamTextBox.Size = UDim2.new(1, 0, 0, 35)
+hitboxTeamTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+hitboxTeamTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+hitboxTeamTextBox.PlaceholderText = "Enter teams to exclude (comma-separated)"
+hitboxTeamTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+hitboxTeamTextBox.Text = ""
+hitboxTeamTextBox.TextSize = 16
+hitboxTeamTextBox.Font = Enum.Font.Gotham
+hitboxTeamTextBox.TextScaled = true
+hitboxTeamTextBox.LayoutOrder = 16
+hitboxTeamTextBox.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Hitbox Team TextBox
+local hitboxTeamTextBoxCorner = Instance.new("UICorner")
+hitboxTeamTextBoxCorner.CornerRadius = UDim.new(0, 4)
+hitboxTeamTextBoxCorner.Parent = hitboxTeamTextBox
+
+local hitboxTeamTextBoxStroke = Instance.new("UIStroke")
+hitboxTeamTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
+hitboxTeamTextBoxStroke.Thickness = 1
+hitboxTeamTextBoxStroke.Parent = hitboxTeamTextBox
 
 -- Create Hitbox Toggle Button
 local hitboxButton = Instance.new("TextButton")
@@ -701,130 +712,57 @@ local ignoreWalls = false
 local aimlockConnection
 local target = nil
 local lastTargetSearch = 0
-local searchCooldown = 0.5 -- Seconds between target searches
-local potentialNPCs = {} -- Cache for NPC models
-local aimlockPaused = false -- Flag to pause aimlock after target death
-local FOV_ANGLE = 90 -- Field of view angle in degrees (90 = 45 degrees either side)
+local searchCooldown = 0.5
+local potentialNPCs = {}
+local aimlockPaused = false
+local FOV_ANGLE = 90
 
 -- Hitbox variables
-local hitboxConnections = {} -- Store connections for each player
-local CHAR_PARENT = nil
-
--- Function to get character parent
-local function GetCharParent()
-    local charParent
-    repeat wait() until player.Character
-    for _, char in pairs(workspace:GetDescendants()) do
-        if string.find(char.Name, player.Name) and char:FindFirstChild("Humanoid") then
-            charParent = char.Parent
-            break
-        end
-    end
-    return charParent
-end
-
--- Initialize CHAR_PARENT
-CHAR_PARENT = GetCharParent()
-
--- Metatable manipulation for hitbox size
-pcall(function()
-    local mt = getrawmetatable(game)
-    setreadonly(mt, false)
-    local old = mt.__index
-    mt.__index = function(Self, Key)
-        if tostring(Self) == "HumanoidRootPart" and tostring(Key) == "Size" then
-            return Vector3.new(2, 2, 1)
-        end
-        return old(Self, Key)
-    end
-    setreadonly(mt, true)
-end)
+local hitboxEnabled = false
+local hitboxSize = 20
+local hitboxConnection
+local originalHitboxProperties = {}
 
 -- Function to parse comma-separated input
 local function parseInput(input)
     local items = {}
     for item in input:gmatch("[^,]+") do
-        items[#items + 1] = item:match("^%s*(.-)%s*$") -- Trim whitespace
+        items[#items + 1] = item:match("^%s*(.-)%s*$")
     end
     return items
 end
 
--- Function to validate and get TPWalk speed
-local function getTPWalkSpeed()
-    local speed = tonumber(speedTextBox.Text)
-    if not speed then
-        speedTextBox.Text = "1"
-        return 1
-    end
-    return speed
-end
-
--- Function to validate and get fly speed
+-- Function to get fly speed
 local function getFlySpeed()
     local speed = tonumber(flySpeedTextBox.Text)
-    if not speed then
-        flySpeedTextBox.Text = "50"
-        flySpeedLabel.Text = "Fly Speed: 50"
-        return 50
+    if not speed or speed < 0 then
+        return 0
     end
     flySpeedLabel.Text = "Fly Speed: " .. speed
     return speed
 end
 
--- Function to validate and get aimlock range
-local function getAimlockRange()
-    local range = tonumber(rangeTextBox.Text)
-    if not range then
-        rangeTextBox.Text = "100"
-        return 100
-    end
-    return range
-end
-
--- Function to validate and get hitbox size
-local function getHitboxSize()
-    local size = tonumber(hitboxSizeTextBox.Text)
-    if not size then
-        hitboxSizeTextBox.Text = "15"
-        return Vector3.new(15, 15, 15)
-    end
-    return Vector3.new(size, size, size)
-end
-
--- Update fly speed label and hitbox size when textboxes change
-speedTextBox:GetPropertyChangedSignal("Text"):Connect(function()
-    getTPWalkSpeed()
-end)
 flySpeedTextBox:GetPropertyChangedSignal("Text"):Connect(function()
     getFlySpeed()
 end)
-rangeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
-    getAimlockRange()
-end)
-hitboxSizeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
-    HITBOX_SIZE = getHitboxSize()
-    if getgenv().HBE then
-        -- Update hitboxes for all players
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= player then
-                AssignHitboxes(otherPlayer)
-            end
-        end
+
+-- Function to get hitbox size
+local function getHitboxSize()
+    local size = tonumber(hitboxSizeTextBox.Text)
+    if not size or size < 0 then
+        return 0
     end
-end)
+    return size
+end
 
 -- Function to check if a part is visible
 local function isVisible(fromPart, toPart)
-    if not (fromPart and toPart) then 
-        return false 
+    if not (fromPart and toPart) then
+        return false
     end
-    
-    -- Skip raycasting if ignoring walls
     if ignoreWalls then
         return true
     end
-    
-    -- Create ignore list with local player's character, all other players' characters, and NPCs
     local ignoreList = {player.Character}
     for _, otherPlayer in pairs(Players:GetPlayers()) do
         if otherPlayer ~= player and otherPlayer.Character then
@@ -836,15 +774,9 @@ local function isVisible(fromPart, toPart)
             table.insert(ignoreList, npc)
         end
     end
-    
     local ray = Ray.new(fromPart.Position, (toPart.Position - fromPart.Position).Unit * (toPart.Position - fromPart.Position).Magnitude)
     local hit, position = workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
-    
-    -- Only return true if no part is hit or the hit part belongs to the target
-    if hit then
-        return hit:IsDescendantOf(toPart.Parent)
-    end
-    return true
+    return hit == nil or hit:IsDescendantOf(toPart.Parent)
 end
 
 -- Function to check if a position is within the camera's field of view
@@ -856,6 +788,15 @@ local function isInFOV(targetPos)
     return angle <= FOV_ANGLE / 2
 end
 
+-- Function to get aimlock range
+local function getAimlockRange()
+    local range = tonumber(rangeTextBox.Text)
+    if not range or range < 0 then
+        return 0
+    end
+    return range
+end
+
 -- Function to update NPC cache
 local function updateNPCCache()
     potentialNPCs = {}
@@ -864,7 +805,6 @@ local function updateNPCCache()
     for _, name in pairs(npcNames) do
         table.insert(lowerNpcNames, name:lower())
     end
-
     for _, model in pairs(workspace:GetDescendants()) do
         if model:IsA("Model") then
             local humanoid = model:FindFirstChildWhichIsA("Humanoid")
@@ -878,10 +818,7 @@ local function updateNPCCache()
     end
 end
 
--- Initial NPC cache update
 updateNPCCache()
-
--- Update NPC cache every 5 seconds
 spawn(function()
     while true do
         wait(5)
@@ -889,7 +826,7 @@ spawn(function()
     end
 end)
 
--- Function to find closest target (player or NPC) within FOV
+-- Function to find closest target
 local function findClosestTarget()
     local closestTarget = nil
     local closestDistance = math.huge
@@ -897,25 +834,19 @@ local function findClosestTarget()
     local localHead = localChar and localChar:FindFirstChild("Head")
     local maxDistance = getAimlockRange()
     local currentTime = tick()
-
     if not localHead then
         return nil
     end
-
-    -- Respect search cooldown
     if currentTime - lastTargetSearch < searchCooldown then
         return target
     end
     lastTargetSearch = currentTime
-
     local excludedTeams = parseInput(teamTextBox.Text)
     local npcNames = parseInput(npcTextBox.Text)
     local lowerNpcNames = {}
     for _, name in pairs(npcNames) do
         table.insert(lowerNpcNames, name:lower())
     end
-
-    -- Check NPCs if enabled
     if npcAimlockEnabled then
         for _, model in pairs(potentialNPCs) do
             if model.Parent then
@@ -935,8 +866,6 @@ local function findClosestTarget()
             end
         end
     end
-
-    -- Check players if enabled and no NPC target found (NPCs have priority)
     if playerAimlockEnabled and not closestTarget then
         for _, otherPlayer in pairs(Players:GetPlayers()) do
             if otherPlayer ~= player and otherPlayer.Character then
@@ -963,7 +892,6 @@ local function findClosestTarget()
             end
         end
     end
-
     return closestTarget
 end
 
@@ -974,109 +902,102 @@ local function toggleIgnoreWalls()
     ignoreWallsButton.BackgroundColor3 = ignoreWalls and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
 end
 
--- Function to assign hitboxes to a player
-local function AssignHitboxes(otherPlayer)
-    if otherPlayer == player then return end
-
-    -- Disconnect any existing connection for this player
-    if hitboxConnections[otherPlayer] then
-        hitboxConnections[otherPlayer]:Disconnect()
-        hitboxConnections[otherPlayer] = nil
+-- Function to toggle hitbox
+local function toggleHitbox()
+    hitboxEnabled = not hitboxEnabled
+    hitboxButton.Text = hitboxEnabled and "Hitbox On" or "Hitbox Off"
+    hitboxButton.BackgroundColor3 = hitboxEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    if hitboxConnection then
+        hitboxConnection:Disconnect()
+        hitboxConnection = nil
     end
-
-    local hitbox_connection
-    hitbox_connection = RunService.RenderStepped:Connect(function()
-        local char = CHAR_PARENT:FindFirstChild(otherPlayer.Name)
-        if getgenv().HBE then
-            if char and char:FindFirstChild("HumanoidRootPart") and (char.HumanoidRootPart.Size ~= HITBOX_SIZE or char.HumanoidRootPart.Color ~= HITBOX_COLOUR) then
-                char.HumanoidRootPart.Size = HITBOX_SIZE
-                char.HumanoidRootPart.Color = HITBOX_COLOUR
-                char.HumanoidRootPart.CanCollide = false
-                char.HumanoidRootPart.Transparency = 0.5
+    if hitboxEnabled then
+        hitboxConnection = RunService.RenderStepped:Connect(function()
+            local localPlayer = Players.LocalPlayer
+            if not localPlayer or not localPlayer.Character then
+                return
             end
-        else
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                char.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
-                char.HumanoidRootPart.Transparency = 1
+            local excludedTeams = parseInput(hitboxTeamTextBox.Text)
+            local headSize = getHitboxSize()
+            for _, otherPlayer in ipairs(Players:GetPlayers()) do
+                if otherPlayer ~= localPlayer and otherPlayer.Character then
+                    local humanoidRootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
+                    if humanoidRootPart then
+                        local teamValid = true
+                        if #excludedTeams > 0 and otherPlayer.Team then
+                            for _, teamName in pairs(excludedTeams) do
+                                if otherPlayer.Team.Name:lower() == teamName:lower() then
+                                    teamValid = false
+                                    break
+                                end
+                            end
+                        end
+                        if teamValid then
+                            if not originalHitboxProperties[humanoidRootPart] then
+                                originalHitboxProperties[humanoidRootPart] = {
+                                    Size = humanoidRootPart.Size,
+                                    Transparency = humanoidRootPart.Transparency,
+                                    BrickColor = humanoidRootPart.BrickColor,
+                                    Material = humanoidRootPart.Material,
+                                    CanCollide = humanoidRootPart.CanCollide
+                                }
+                            end
+                            humanoidRootPart.Size = Vector3.new(headSize, headSize, headSize)
+                            humanoidRootPart.Transparency = 0.7
+                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
+                            humanoidRootPart.Material = Enum.Material.Neon
+                            humanoidRootPart.CanCollide = false
+                        else
+                            if originalHitboxProperties[humanoidRootPart] then
+                                humanoidRootPart.Size = originalHitboxProperties[humanoidRootPart].Size
+                                humanoidRootPart.Transparency = originalHitboxProperties[humanoidRootPart].Transparency
+                                humanoidRootPart.BrickColor = originalHitboxProperties[humanoidRootPart].BrickColor
+                                humanoidRootPart.Material = originalHitboxProperties[humanoidRootPart].Material
+                                humanoidRootPart.CanCollide = originalHitboxProperties[humanoidRootPart].CanCollide
+                            end
+                        end
+                    end
+                end
             end
-            hitbox_connection:Disconnect()
-            hitboxConnections[otherPlayer] = nil
-        end
-    end)
-    hitboxConnections[otherPlayer] = hitbox_connection
-end
-
--- Function to toggle hitboxes
-local function toggleHitboxes()
-    getgenv().HBE = not getgenv().HBE
-    hitboxButton.Text = getgenv().HBE and "Hitbox On" or "Hitbox Off"
-    hitboxButton.BackgroundColor3 = getgenv().HBE and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    HITBOX_SIZE = getHitboxSize()
-
-    if getgenv().HBE then
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= player then
-                AssignHitboxes(otherPlayer)
-            end
-        end
+        end)
     else
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= player then
-                local char = CHAR_PARENT:FindFirstChild(otherPlayer.Name)
-                if char and char:FindFirstChild("HumanoidRootPart") then
-                    char.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
-                    char.HumanoidRootPart.Transparency = 1
-                end
-                if hitboxConnections[otherPlayer] then
-                    hitboxConnections[otherPlayer]:Disconnect()
-                    hitboxConnections[otherPlayer] = nil
-                end
+        for humanoidRootPart, properties in pairs(originalHitboxProperties) do
+            if humanoidRootPart and humanoidRootPart.Parent then
+                humanoidRootPart.Size = properties.Size
+                humanoidRootPart.Transparency = properties.Transparency
+                humanoidRootPart.BrickColor = properties.BrickColor
+                humanoidRootPart.Material = properties.Material
+                humanoidRootPart.CanCollide = properties.CanCollide
             end
         end
+        originalHitboxProperties = {}
     end
 end
 
--- Apply hitboxes to existing players
-for _, otherPlayer in pairs(Players:GetPlayers()) do
-    if otherPlayer ~= player and getgenv().HBE then
-        AssignHitboxes(otherPlayer)
+-- Function to reapply hitbox on respawn
+local function reapplyHitbox()
+    if hitboxEnabled then
+        local wasEnabled = hitboxEnabled
+        toggleHitbox()
+        toggleHitbox()
     end
 end
 
--- Handle new players
-Players.PlayerAdded:Connect(function(newPlayer)
-    if getgenv().HBE then
-        AssignHitboxes(newPlayer)
-    end
-end)
+-- Connect hitbox toggle
+hitboxButton.MouseButton1Click:Connect(toggleHitbox)
 
--- Reapply hitboxes on respawn
-local function reapplyHitboxes()
-    CHAR_PARENT = GetCharParent()
-    if getgenv().HBE then
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= player then
-                AssignHitboxes(otherPlayer)
-            end
-        end
-    end
-end
-
-player.CharacterAdded:Connect(function()
-    reapplyHitboxes()
-end)
+-- Connect player respawn
+player.CharacterAdded:Connect(reapplyHitbox)
 
 -- Function to toggle player aimlock
 local function togglePlayerAimlock()
     playerAimlockEnabled = not playerAimlockEnabled
     playerAimlockButton.Text = playerAimlockEnabled and "Player Aimlock On" or "Player Aimlock Off"
     playerAimlockButton.BackgroundColor3 = playerAimlockEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-
     if playerAimlockEnabled or npcAimlockEnabled then
         if aimlockConnection then aimlockConnection:Disconnect() end
         target = nil
         aimlockPaused = false
-
         aimlockConnection = RunService.RenderStepped:Connect(function()
             if not (playerAimlockEnabled or npcAimlockEnabled) or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
                 playerAimlockEnabled = false
@@ -1090,7 +1011,6 @@ local function togglePlayerAimlock()
                 aimlockPaused = false
                 return
             end
-
             local targetValid = false
             local maxDistance = getAimlockRange()
             if target and target.Parent then
@@ -1107,11 +1027,9 @@ local function togglePlayerAimlock()
                     target = nil
                 end
             end
-
             if not targetValid then
                 target = findClosestTarget()
             end
-
             if target then
                 Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Position)
             end
@@ -1128,12 +1046,10 @@ local function toggleNPCAimlock()
     npcAimlockEnabled = not npcAimlockEnabled
     npcAimlockButton.Text = npcAimlockEnabled and "NPC Aimlock On" or "NPC Aimlock Off"
     npcAimlockButton.BackgroundColor3 = npcAimlockEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-
     if playerAimlockEnabled or npcAimlockEnabled then
         if aimlockConnection then aimlockConnection:Disconnect() end
         target = nil
         aimlockPaused = false
-
         aimlockConnection = RunService.RenderStepped:Connect(function()
             if not (playerAimlockEnabled or npcAimlockEnabled) or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
                 playerAimlockEnabled = false
@@ -1147,7 +1063,6 @@ local function toggleNPCAimlock()
                 aimlockPaused = false
                 return
             end
-
             local targetValid = false
             local maxDistance = getAimlockRange()
             if target and target.Parent then
@@ -1164,11 +1079,9 @@ local function toggleNPCAimlock()
                     target = nil
                 end
             end
-
             if not targetValid then
                 target = findClosestTarget()
             end
-
             if target then
                 Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Position)
             end
@@ -1191,16 +1104,17 @@ local function startTPWalk()
         end
         return
     end
-
-    local multiplier = getTPWalkSpeed()
+    local multiplier = tonumber(speedTextBox.Text)
+    if not multiplier then
+        warn("Please enter a valid number for TPWalk speed")
+        return
+    end
     speedMultiplier = multiplier
     tpwalking = true
     applyButton.Text = "Disable TPWalk"
     applyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-
     local character = player.Character
     local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
-
     if character and humanoid and humanoid.Parent then
         tpConnection = RunService.Heartbeat:Connect(function(delta)
             if not tpwalking or not character or not humanoid or not humanoid.Parent then
@@ -1209,7 +1123,6 @@ local function startTPWalk()
                 end
                 return
             end
-
             if humanoid.MoveDirection.Magnitude > 0 then
                 local tpwalkSpeed = humanoid.WalkSpeed * speedMultiplier
                 character:TranslateBy(humanoid.MoveDirection * delta * tpwalkSpeed)
@@ -1223,7 +1136,6 @@ local function toggleFly()
     flying = not flying
     flyButton.Text = flying and "Fly On" or "Fly Off"
     flyButton.BackgroundColor3 = flying and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-
     local character = player.Character
     local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
     if not character or not humanoid then
@@ -1232,7 +1144,6 @@ local function toggleFly()
         flyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
         return
     end
-
     if flying then
         humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
         humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
@@ -1250,25 +1161,20 @@ local function toggleFly()
         humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, false)
         humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
         humanoid:ChangeState(Enum.HumanoidStateType.Swimming)
-
         local rootPart = (humanoid.RigType == Enum.HumanoidRigType.R6 and character:FindFirstChild("Torso")) or character:FindFirstChild("UpperTorso")
         if not rootPart then return end
-
         flyBodyGyro = Instance.new("BodyGyro", rootPart)
         flyBodyGyro.P = 9e4
         flyBodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
         flyBodyGyro.CFrame = rootPart.CFrame
-
         flyBodyVelocity = Instance.new("BodyVelocity", rootPart)
         flyBodyVelocity.Velocity = Vector3.new(0, 0.1, 0)
         flyBodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
-
         humanoid.PlatformStand = true
         character.Animate.Disabled = true
         for _, track in pairs(humanoid:GetPlayingAnimationTracks()) do
             track:AdjustSpeed(0)
         end
-
         if character and humanoid and humanoid.Parent then
             flyTpConnection = RunService.Heartbeat:Connect(function(delta)
                 if not flying or not character or not humanoid or not humanoid.Parent then
@@ -1283,7 +1189,6 @@ local function toggleFly()
                 end
             end)
         end
-
         flyConnection = RunService.RenderStepped:Connect(function()
             if not flying or not character or not humanoid or humanoid.Health <= 0 then
                 if flyConnection then flyConnection:Disconnect() end
@@ -1315,10 +1220,8 @@ local function toggleFly()
                 flyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
                 return
             end
-
             local currentSpeed = 0
             flySpeed = getFlySpeed()
-
             if flyControls.l + flyControls.r ~= 0 or flyControls.f + flyControls.b ~= 0 then
                 currentSpeed = currentSpeed + 0.5 + (currentSpeed / flySpeed)
                 if currentSpeed > flySpeed then
@@ -1330,7 +1233,6 @@ local function toggleFly()
                     currentSpeed = 0
                 end
             end
-
             if flyControls.l + flyControls.r ~= 0 or flyControls.f + flyControls.b ~= 0 then
                 flyBodyVelocity.Velocity = ((Camera.CoordinateFrame.lookVector * (flyControls.f + flyControls.b)) +
                     ((Camera.CoordinateFrame * CFrame.new(flyControls.l + flyControls.r, (flyControls.f + flyControls.b) * 0.2, 0).p) - Camera.CoordinateFrame.p)) * currentSpeed
@@ -1341,7 +1243,6 @@ local function toggleFly()
             else
                 flyBodyVelocity.Velocity = Vector3.new(0, 0.1, 0)
             end
-
             flyBodyGyro.CFrame = Camera.CoordinateFrame * CFrame.Angles(-math.rad((flyControls.f + flyControls.b) * 50 * currentSpeed / flySpeed), 0, 0)
         end)
     else
@@ -1402,7 +1303,6 @@ local function toggleXRay()
     xrayEnabled = not xrayEnabled
     xrayButton.Text = xrayEnabled and "X-Ray On" or "X-Ray Off"
     xrayButton.BackgroundColor3 = xrayEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-
     if xrayEnabled then
         for _, part in pairs(workspace:GetDescendants()) do
             if part:IsA("BasePart") and not part.Parent:FindFirstChildWhichIsA("Humanoid") then
@@ -1429,7 +1329,6 @@ local function toggleNoClip()
     noclipEnabled = not noclipEnabled
     noclipButton.Text = noclipEnabled and "NoClip On" or "NoClip Off"
     noclipButton.BackgroundColor3 = noclipEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-
     local character = player.Character
     if character then
         for _, v in pairs(character:GetDescendants()) do
@@ -1445,7 +1344,6 @@ local function toggleESP()
     espEnabled = not espEnabled
     espButton.Text = espEnabled and "ESP On" or "ESP Off"
     espButton.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-
     local function updateESP()
         for _, highlight in pairs(highlights) do
             if highlight then highlight:Destroy() end
@@ -1455,14 +1353,11 @@ local function toggleESP()
         end
         highlights = {}
         beams = {}
-
         if not espEnabled then return end
-
         local localChar = player.Character
         if not localChar or not localChar:FindFirstChild("HumanoidRootPart") then
             return
         end
-
         for _, otherPlayer in pairs(Players:GetPlayers()) do
             if otherPlayer ~= player then
                 local playerChar = otherPlayer.Character
@@ -1471,19 +1366,16 @@ local function toggleESP()
                     if #Teams:GetTeams() > 0 and otherPlayer.Team then
                         espColor = otherPlayer.Team.TeamColor.Color
                     end
-
                     local highlight = Instance.new("Highlight")
                     highlight.Name = "ESPHighlight"
                     highlight.FillColor = espColor
                     highlight.OutlineColor = espColor
                     highlight.Parent = playerChar
                     highlights[otherPlayer] = highlight
-
                     local attachment0 = Instance.new("Attachment")
                     attachment0.Parent = localChar:FindFirstChild("HumanoidRootPart")
                     local attachment1 = Instance.new("Attachment")
                     attachment1.Parent = playerChar:FindFirstChild("HumanoidRootPart")
-
                     local beam = Instance.new("Beam")
                     beam.Name = "ESPBeam"
                     beam.Attachment0 = attachment0
@@ -1498,9 +1390,7 @@ local function toggleESP()
             end
         end
     end
-
     updateESP()
-
     for _, otherPlayer in pairs(Players:GetPlayers()) do
         if otherPlayer ~= player then
             otherPlayer.CharacterAdded:Connect(function()
@@ -1528,9 +1418,8 @@ local function toggleFullBright()
     fullbrightEnabled = not fullbrightEnabled
     fullbrightButton.Text = fullbrightEnabled and "FullBright On" or "FullBright Off"
     fullbrightButton.BackgroundColor3 = fullbrightEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-
     if fullbrightEnabled then
-        Lighting.Brightness = 2
+        Lighting.Brightness = 1
         Lighting.Ambient = Color3.fromRGB(255, 255, 255)
         Lighting.GlobalShadows = false
     else
@@ -1545,49 +1434,33 @@ local function toggleCameraShake()
     cameraShakeEnabled = not cameraShakeEnabled
     cameraShakeButton.Text = cameraShakeEnabled and "CamShake On" or "CamShake Off"
     cameraShakeButton.BackgroundColor3 = cameraShakeEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-
     if cameraShakeEnabled then
-        local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-        local blurTween = TweenService:Create(blurEffect, tweenInfo, {Size = 10})
-        local fovTween = TweenService:Create(Camera, tweenInfo, {FieldOfView = defaultFOV + 5})
-        local blurTweenBack = TweenService:Create(blurEffect, tweenInfo, {Size = 0})
-        local fovTweenBack = TweenService:Create(Camera, tweenInfo, {FieldOfView = defaultFOV})
-
-        spawn(function()
-            while cameraShakeEnabled do
-                blurTween:Play()
-                fovTween:Play()
-                wait(tweenTime)
-                blurTweenBack:Play()
-                fovTweenBack:Play()
-                wait(tweenTime)
-            end
-            blurEffect.Size = 0
-            Camera.FieldOfView = defaultFOV
-        end)
+        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = 60}):Play()
+        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 10}):Play()
+    else
+        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = defaultFOV}):Play()
+        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 0}):Play()
     end
 end
 
--- Toggle GUI visibility
-local function toggleGUI()
-    scrollingFrame.Visible = not scrollingFrame.Visible
-    toggleButton.Text = scrollingFrame.Visible and "On" or "Off"
-    toggleButton.BackgroundColor3 = scrollingFrame.Visible and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(30, 30, 30)
-end
-
 -- Connect buttons
-toggleButton.MouseButton1Click:Connect(toggleGUI)
 applyButton.MouseButton1Click:Connect(startTPWalk)
 flyButton.MouseButton1Click:Connect(toggleFly)
-playerAimlockButton.MouseButton1Click:Connect(togglePlayerAimlock)
-npcAimlockButton.MouseButton1Click:Connect(toggleNPCAimlock)
-ignoreWallsButton.MouseButton1Click:Connect(toggleIgnoreWalls)
-hitboxButton.MouseButton1Click:Connect(toggleHitboxes)
 xrayButton.MouseButton1Click:Connect(toggleXRay)
 noclipButton.MouseButton1Click:Connect(toggleNoClip)
 espButton.MouseButton1Click:Connect(toggleESP)
 fullbrightButton.MouseButton1Click:Connect(toggleFullBright)
 cameraShakeButton.MouseButton1Click:Connect(toggleCameraShake)
+playerAimlockButton.MouseButton1Click:Connect(togglePlayerAimlock)
+npcAimlockButton.MouseButton1Click:Connect(toggleNPCAimlock)
+ignoreWallsButton.MouseButton1Click:Connect(toggleIgnoreWalls)
+
+-- Toggle GUI visibility
+toggleButton.MouseButton1Click:Connect(function()
+    scrollingFrame.Visible = not scrollingFrame.Visible
+    toggleButton.Text = scrollingFrame.Visible and "On" or "Off"
+    toggleButton.BackgroundColor3 = scrollingFrame.Visible and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(30, 30, 30)
+end)
 
 -- Handle character added for NoClip
 player.CharacterAdded:Connect(function(character)
