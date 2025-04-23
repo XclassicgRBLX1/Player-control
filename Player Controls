@@ -7,6 +7,11 @@ local Lighting = game:GetService("Lighting")
 local Camera = workspace.CurrentCamera
 local TweenService = game:GetService("TweenService")
 
+-- Initialize hitbox environment variable
+getgenv().HBE = false -- Controls whether hitboxes are active
+local HITBOX_SIZE = Vector3.new(15, 15, 15) -- Default hitbox size
+local HITBOX_COLOUR = Color3.fromRGB(255, 0, 0) -- Default hitbox color
+
 -- Create GUI
 local screenGui = Instance.new("ScreenGui")
 screenGui.Parent = player.PlayerGui
@@ -138,7 +143,7 @@ local flySpeedTextBox = Instance.new("TextBox")
 flySpeedTextBox.Size = UDim2.new(1, 0, 0, 35)
 flySpeedTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 flySpeedTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-flySpeedTextBox.PlaceholderText = "Enter fly speed (1-1000)"
+flySpeedTextBox.PlaceholderText = "Enter fly speed"
 flySpeedTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
 flySpeedTextBox.Text = "50"
 flySpeedTextBox.TextSize = 16
@@ -379,12 +384,74 @@ ignoreWallsButton.MouseLeave:Connect(function()
     ignoreWallsButton.BackgroundColor3 = ignoreWallsButton.Text == "Ignore Walls Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
 end)
 
+-- Create Separator for Hitbox Section
+local hitboxSeparator = Instance.new("Frame")
+hitboxSeparator.Size = UDim2.new(1, 0, 0, 2)
+hitboxSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+hitboxSeparator.BorderSizePixel = 0
+hitboxSeparator.LayoutOrder = 15
+hitboxSeparator.Parent = scrollingFrame
+
+-- Create TextBox for Hitbox Size
+local hitboxSizeTextBox = Instance.new("TextBox")
+hitboxSizeTextBox.Size = UDim2.new(1, 0, 0, 35)
+hitboxSizeTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+hitboxSizeTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+hitboxSizeTextBox.PlaceholderText = "Enter hitbox size"
+hitboxSizeTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+hitboxSizeTextBox.Text = "15"
+hitboxSizeTextBox.TextSize = 16
+hitboxSizeTextBox.Font = Enum.Font.Gotham
+hitboxSizeTextBox.TextScaled = true
+hitboxSizeTextBox.LayoutOrder = 16
+hitboxSizeTextBox.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Hitbox Size TextBox
+local hitboxSizeTextBoxCorner = Instance.new("UICorner")
+hitboxSizeTextBoxCorner.CornerRadius = UDim.new(0, 4)
+hitboxSizeTextBoxCorner.Parent = hitboxSizeTextBox
+
+local hitboxSizeTextBoxStroke = Instance.new("UIStroke")
+hitboxSizeTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
+hitboxSizeTextBoxStroke.Thickness = 1
+hitboxSizeTextBoxStroke.Parent = hitboxSizeTextBox
+
+-- Create Hitbox Toggle Button
+local hitboxButton = Instance.new("TextButton")
+hitboxButton.Size = UDim2.new(1, 0, 0, 35)
+hitboxButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+hitboxButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+hitboxButton.Text = "Hitbox Off"
+hitboxButton.TextSize = 16
+hitboxButton.Font = Enum.Font.Gotham
+hitboxButton.TextScaled = true
+hitboxButton.LayoutOrder = 17
+hitboxButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Hitbox Button
+local hitboxButtonCorner = Instance.new("UICorner")
+hitboxButtonCorner.CornerRadius = UDim.new(0, 4)
+hitboxButtonCorner.Parent = hitboxButton
+
+local hitboxButtonStroke = Instance.new("UIStroke")
+hitboxButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+hitboxButtonStroke.Thickness = 1
+hitboxButtonStroke.Parent = hitboxButton
+
+-- Hover effect for Hitbox Button
+hitboxButton.MouseEnter:Connect(function()
+    hitboxButton.BackgroundColor3 = hitboxButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+hitboxButton.MouseLeave:Connect(function()
+    hitboxButton.BackgroundColor3 = hitboxButton.Text == "Hitbox Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
 -- Create Separator for Toggles Section
 local togglesSeparator = Instance.new("Frame")
 togglesSeparator.Size = UDim2.new(1, 0, 0, 2)
 togglesSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 togglesSeparator.BorderSizePixel = 0
-togglesSeparator.LayoutOrder = 15
+togglesSeparator.LayoutOrder = 18
 togglesSeparator.Parent = scrollingFrame
 
 -- Create X-Ray Toggle Button
@@ -396,7 +463,7 @@ xrayButton.Text = "X-Ray Off"
 xrayButton.TextSize = 16
 xrayButton.Font = Enum.Font.Gotham
 xrayButton.TextScaled = true
-xrayButton.LayoutOrder = 16
+xrayButton.LayoutOrder = 19
 xrayButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to X-Ray Button
@@ -426,7 +493,7 @@ noclipButton.Text = "NoClip Off"
 noclipButton.TextSize = 16
 noclipButton.Font = Enum.Font.Gotham
 noclipButton.TextScaled = true
-noclipButton.LayoutOrder = 17
+noclipButton.LayoutOrder = 20
 noclipButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to NoClip Button
@@ -456,7 +523,7 @@ espButton.Text = "ESP Off"
 espButton.TextSize = 16
 espButton.Font = Enum.Font.Gotham
 espButton.TextScaled = true
-espButton.LayoutOrder = 18
+espButton.LayoutOrder = 21
 espButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to ESP Button
@@ -486,7 +553,7 @@ fullbrightButton.Text = "FullBright Off"
 fullbrightButton.TextSize = 16
 fullbrightButton.Font = Enum.Font.Gotham
 fullbrightButton.TextScaled = true
-fullbrightButton.LayoutOrder = 19
+fullbrightButton.LayoutOrder = 22
 fullbrightButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to FullBright Button
@@ -516,7 +583,7 @@ cameraShakeButton.Text = "CamShake Off"
 cameraShakeButton.TextSize = 16
 cameraShakeButton.Font = Enum.Font.Gotham
 cameraShakeButton.TextScaled = true
-cameraShakeButton.LayoutOrder = 20
+cameraShakeButton.LayoutOrder = 23
 cameraShakeButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to Camera Shake Button
@@ -639,6 +706,40 @@ local potentialNPCs = {} -- Cache for NPC models
 local aimlockPaused = false -- Flag to pause aimlock after target death
 local FOV_ANGLE = 90 -- Field of view angle in degrees (90 = 45 degrees either side)
 
+-- Hitbox variables
+local hitboxConnections = {} -- Store connections for each player
+local CHAR_PARENT = nil
+
+-- Function to get character parent
+local function GetCharParent()
+    local charParent
+    repeat wait() until player.Character
+    for _, char in pairs(workspace:GetDescendants()) do
+        if string.find(char.Name, player.Name) and char:FindFirstChild("Humanoid") then
+            charParent = char.Parent
+            break
+        end
+    end
+    return charParent
+end
+
+-- Initialize CHAR_PARENT
+CHAR_PARENT = GetCharParent()
+
+-- Metatable manipulation for hitbox size
+pcall(function()
+    local mt = getrawmetatable(game)
+    setreadonly(mt, false)
+    local old = mt.__index
+    mt.__index = function(Self, Key)
+        if tostring(Self) == "HumanoidRootPart" and tostring(Key) == "Size" then
+            return Vector3.new(2, 2, 1)
+        end
+        return old(Self, Key)
+    end
+    setreadonly(mt, true)
+end)
+
 -- Function to parse comma-separated input
 local function parseInput(input)
     local items = {}
@@ -648,10 +749,20 @@ local function parseInput(input)
     return items
 end
 
--- Function to get fly speed
+-- Function to validate and get TPWalk speed
+local function getTPWalkSpeed()
+    local speed = tonumber(speedTextBox.Text)
+    if not speed then
+        speedTextBox.Text = "1"
+        return 1
+    end
+    return speed
+end
+
+-- Function to validate and get fly speed
 local function getFlySpeed()
     local speed = tonumber(flySpeedTextBox.Text)
-    if not speed or speed <= 0 or speed > 1000 then
+    if not speed then
         flySpeedTextBox.Text = "50"
         flySpeedLabel.Text = "Fly Speed: 50"
         return 50
@@ -660,21 +771,56 @@ local function getFlySpeed()
     return speed
 end
 
--- Update fly speed label when textbox changes
+-- Function to validate and get aimlock range
+local function getAimlockRange()
+    local range = tonumber(rangeTextBox.Text)
+    if not range then
+        rangeTextBox.Text = "100"
+        return 100
+    end
+    return range
+end
+
+-- Function to validate and get hitbox size
+local function getHitboxSize()
+    local size = tonumber(hitboxSizeTextBox.Text)
+    if not size then
+        hitboxSizeTextBox.Text = "15"
+        return Vector3.new(15, 15, 15)
+    end
+    return Vector3.new(size, size, size)
+end
+
+-- Update fly speed label and hitbox size when textboxes change
+speedTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    getTPWalkSpeed()
+end)
 flySpeedTextBox:GetPropertyChangedSignal("Text"):Connect(function()
     getFlySpeed()
+end)
+rangeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    getAimlockRange()
+end)
+hitboxSizeTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    HITBOX_SIZE = getHitboxSize()
+    if getgenv().HBE then
+        -- Update hitboxes for all players
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= player then
+                AssignHitboxes(otherPlayer)
+            end
+        end
+    end
 end)
 
 -- Function to check if a part is visible
 local function isVisible(fromPart, toPart)
     if not (fromPart and toPart) then 
-        print("isVisible: Missing parts")
         return false 
     end
     
     -- Skip raycasting if ignoring walls
     if ignoreWalls then
-        print("isVisible: Ignoring walls, target is visible")
         return true
     end
     
@@ -696,17 +842,9 @@ local function isVisible(fromPart, toPart)
     
     -- Only return true if no part is hit or the hit part belongs to the target
     if hit then
-        if hit:IsDescendantOf(toPart.Parent) then
-            print("isVisible: Hit target part: " .. hit.Name)
-            return true
-        else
-            print("isVisible: Blocked by non-character object: " .. hit.Name)
-            return false
-        end
-    else
-        print("isVisible: No obstruction, clear path to target")
-        return true
+        return hit:IsDescendantOf(toPart.Parent)
     end
+    return true
 end
 
 -- Function to check if a position is within the camera's field of view
@@ -715,23 +853,7 @@ local function isInFOV(targetPos)
     local cameraForward = cameraCFrame.LookVector
     local toTarget = (targetPos - cameraCFrame.Position).Unit
     local angle = math.deg(math.acos(cameraForward:Dot(toTarget)))
-    if angle <= FOV_ANGLE / 2 then
-        print("isInFOV: Target within FOV, angle: " .. angle)
-        return true
-    else
-        print("isInFOV: Target outside FOV, angle: " .. angle)
-        return false
-    end
-end
-
--- Function to get aimlock range
-local function getAimlockRange()
-    local range = tonumber(rangeTextBox.Text)
-    if not range or range <= 0 then
-        rangeTextBox.Text = "100"
-        return 100
-    end
-    return range
+    return angle <= FOV_ANGLE / 2
 end
 
 -- Function to update NPC cache
@@ -750,12 +872,10 @@ local function updateNPCCache()
             if humanoid and rootPart and not Players:GetPlayerFromCharacter(model) then
                 if #npcNames == 0 or table.find(lowerNpcNames, model.Name:lower()) then
                     table.insert(potentialNPCs, model)
-                    print("Cached NPC: " .. model.Name)
                 end
             end
         end
     end
-    print("NPC cache updated. Found " .. #potentialNPCs .. " potential NPCs")
 end
 
 -- Initial NPC cache update
@@ -779,13 +899,11 @@ local function findClosestTarget()
     local currentTime = tick()
 
     if not localHead then
-        print("No local head found")
         return nil
     end
 
     -- Respect search cooldown
     if currentTime - lastTargetSearch < searchCooldown then
-        print("findClosestTarget: On cooldown, returning current target")
         return target
     end
     lastTargetSearch = currentTime
@@ -800,7 +918,7 @@ local function findClosestTarget()
     -- Check NPCs if enabled
     if npcAimlockEnabled then
         for _, model in pairs(potentialNPCs) do
-            if model.Parent then -- Ensure model still exists
+            if model.Parent then
                 local humanoid = model:FindFirstChildWhichIsA("Humanoid")
                 local rootPart = model:FindFirstChild("HumanoidRootPart") or model:FindFirstChild("Head")
                 if humanoid and rootPart and humanoid.Health > 0 then
@@ -810,22 +928,9 @@ local function findClosestTarget()
                             if distance < closestDistance then
                                 closestDistance = distance
                                 closestTarget = rootPart
-                                print("Found NPC: " .. model.Name .. " at distance: " .. distance)
                             end
-                        else
-                            if not isVisible(localHead, rootPart) then
-                                print("NPC not visible: " .. model.Name)
-                            elseif not isInFOV(rootPart.Position) then
-                                print("NPC outside FOV: " .. model.Name)
-                            end
-                        end
-                    else
-                        if distance > maxDistance then
-                            print("NPC too far: " .. model.Name .. " at distance: " .. distance)
                         end
                     end
-                else
-                    print("Invalid NPC: " .. model.Name)
                 end
             end
         end
@@ -852,29 +957,13 @@ local function findClosestTarget()
                         if distance < closestDistance then
                             closestDistance = distance
                             closestTarget = rootPart
-                            print("Found Player: " .. otherPlayer.Name .. " at distance: " .. distance)
-                        end
-                    else
-                        if not teamValid then
-                            print("Player team excluded: " .. otherPlayer.Name)
-                        elseif distance > maxDistance then
-                            print("Player too far: " .. otherPlayer.Name .. " at distance: " .. distance)
-                        elseif not isVisible(localHead, rootPart) then
-                            print("Player not visible: " .. otherPlayer.Name)
-                        elseif not isInFOV(rootPart.Position) then
-                            print("Player outside FOV: " .. otherPlayer.Name)
                         end
                     end
-                else
-                    print("Invalid player character: " .. otherPlayer.Name)
                 end
             end
         end
     end
 
-    if not closestTarget then
-        print("No valid target found")
-    end
     return closestTarget
 end
 
@@ -883,8 +972,99 @@ local function toggleIgnoreWalls()
     ignoreWalls = not ignoreWalls
     ignoreWallsButton.Text = ignoreWalls and "Ignore Walls On" or "Ignore Walls Off"
     ignoreWallsButton.BackgroundColor3 = ignoreWalls and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    print("Ignore Walls: " .. (ignoreWalls and "Enabled" or "Disabled"))
 end
+
+-- Function to assign hitboxes to a player
+local function AssignHitboxes(otherPlayer)
+    if otherPlayer == player then return end
+
+    -- Disconnect any existing connection for this player
+    if hitboxConnections[otherPlayer] then
+        hitboxConnections[otherPlayer]:Disconnect()
+        hitboxConnections[otherPlayer] = nil
+    end
+
+    local hitbox_connection
+    hitbox_connection = RunService.RenderStepped:Connect(function()
+        local char = CHAR_PARENT:FindFirstChild(otherPlayer.Name)
+        if getgenv().HBE then
+            if char and char:FindFirstChild("HumanoidRootPart") and (char.HumanoidRootPart.Size ~= HITBOX_SIZE or char.HumanoidRootPart.Color ~= HITBOX_COLOUR) then
+                char.HumanoidRootPart.Size = HITBOX_SIZE
+                char.HumanoidRootPart.Color = HITBOX_COLOUR
+                char.HumanoidRootPart.CanCollide = false
+                char.HumanoidRootPart.Transparency = 0.5
+            end
+        else
+            if char and char:FindFirstChild("HumanoidRootPart") then
+                char.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+                char.HumanoidRootPart.Transparency = 1
+            end
+            hitbox_connection:Disconnect()
+            hitboxConnections[otherPlayer] = nil
+        end
+    end)
+    hitboxConnections[otherPlayer] = hitbox_connection
+end
+
+-- Function to toggle hitboxes
+local function toggleHitboxes()
+    getgenv().HBE = not getgenv().HBE
+    hitboxButton.Text = getgenv().HBE and "Hitbox On" or "Hitbox Off"
+    hitboxButton.BackgroundColor3 = getgenv().HBE and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    HITBOX_SIZE = getHitboxSize()
+
+    if getgenv().HBE then
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= player then
+                AssignHitboxes(otherPlayer)
+            end
+        end
+    else
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= player then
+                local char = CHAR_PARENT:FindFirstChild(otherPlayer.Name)
+                if char and char:FindFirstChild("HumanoidRootPart") then
+                    char.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+                    char.HumanoidRootPart.Transparency = 1
+                end
+                if hitboxConnections[otherPlayer] then
+                    hitboxConnections[otherPlayer]:Disconnect()
+                    hitboxConnections[otherPlayer] = nil
+                end
+            end
+        end
+    end
+end
+
+-- Apply hitboxes to existing players
+for _, otherPlayer in pairs(Players:GetPlayers()) do
+    if otherPlayer ~= player and getgenv().HBE then
+        AssignHitboxes(otherPlayer)
+    end
+end
+
+-- Handle new players
+Players.PlayerAdded:Connect(function(newPlayer)
+    if getgenv().HBE then
+        AssignHitboxes(newPlayer)
+    end
+end)
+
+-- Reapply hitboxes on respawn
+local function reapplyHitboxes()
+    CHAR_PARENT = GetCharParent()
+    if getgenv().HBE then
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= player then
+                AssignHitboxes(otherPlayer)
+            end
+        end
+    end
+end
+
+player.CharacterAdded:Connect(function()
+    reapplyHitboxes()
+end)
 
 -- Function to toggle player aimlock
 local function togglePlayerAimlock()
@@ -894,8 +1074,8 @@ local function togglePlayerAimlock()
 
     if playerAimlockEnabled or npcAimlockEnabled then
         if aimlockConnection then aimlockConnection:Disconnect() end
-        target = nil -- Reset target
-        aimlockPaused = false -- Reset pause state
+        target = nil
+        aimlockPaused = false
 
         aimlockConnection = RunService.RenderStepped:Connect(function()
             if not (playerAimlockEnabled or npcAimlockEnabled) or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
@@ -908,11 +1088,9 @@ local function togglePlayerAimlock()
                 if aimlockConnection then aimlockConnection:Disconnect() end
                 target = nil
                 aimlockPaused = false
-                print("Aimlock disabled: Player invalid")
                 return
             end
 
-            -- Check if current target is valid
             local targetValid = false
             local maxDistance = getAimlockRange()
             if target and target.Parent then
@@ -923,29 +1101,17 @@ local function togglePlayerAimlock()
                     if distance <= maxDistance then
                         targetValid = true
                     else
-                        print("Target out of range: " .. distance)
                         target = nil
                     end
                 else
-                    if humanoid and humanoid.Health <= 0 then
-                        print("Target dead, clearing target")
-                        target = nil
-                    else
-                        print("Target invalid: missing parts")
-                        target = nil
-                    end
+                    target = nil
                 end
             end
 
-            -- Find new target if current one is invalid
             if not targetValid then
                 target = findClosestTarget()
-                if target then
-                    print("Aimlock active: New target acquired")
-                end
             end
 
-            -- Lock camera to target
             if target then
                 Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Position)
             end
@@ -954,7 +1120,6 @@ local function togglePlayerAimlock()
         if aimlockConnection then aimlockConnection:Disconnect() end
         target = nil
         aimlockPaused = false
-        print("Player aimlock disabled")
     end
 end
 
@@ -966,8 +1131,8 @@ local function toggleNPCAimlock()
 
     if playerAimlockEnabled or npcAimlockEnabled then
         if aimlockConnection then aimlockConnection:Disconnect() end
-        target = nil -- Reset target
-        aimlockPaused = false -- Reset pause state
+        target = nil
+        aimlockPaused = false
 
         aimlockConnection = RunService.RenderStepped:Connect(function()
             if not (playerAimlockEnabled or npcAimlockEnabled) or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
@@ -980,11 +1145,9 @@ local function toggleNPCAimlock()
                 if aimlockConnection then aimlockConnection:Disconnect() end
                 target = nil
                 aimlockPaused = false
-                print("Aimlock disabled: Player invalid")
                 return
             end
 
-            -- Check if current target is valid
             local targetValid = false
             local maxDistance = getAimlockRange()
             if target and target.Parent then
@@ -995,29 +1158,17 @@ local function toggleNPCAimlock()
                     if distance <= maxDistance then
                         targetValid = true
                     else
-                        print("Target out of range: " .. distance)
                         target = nil
                     end
                 else
-                    if humanoid and humanoid.Health <= 0 then
-                        print("Target dead, clearing target")
-                        target = nil
-                    else
-                        print("Target invalid: missing parts")
-                        target = nil
-                    end
+                    target = nil
                 end
             end
 
-            -- Find new target if current one is invalid
             if not targetValid then
                 target = findClosestTarget()
-                if target then
-                    print("Aimlock active: New target acquired")
-                end
             end
 
-            -- Lock camera to target
             if target then
                 Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Position)
             end
@@ -1026,7 +1177,6 @@ local function toggleNPCAimlock()
         if aimlockConnection then aimlockConnection:Disconnect() end
         target = nil
         aimlockPaused = false
-        print("NPC aimlock disabled")
     end
 end
 
@@ -1042,12 +1192,7 @@ local function startTPWalk()
         return
     end
 
-    local multiplier = tonumber(speedTextBox.Text)
-    if not multiplier then
-        warn("Please enter a valid number for TPWalk speed")
-        return
-    end
-
+    local multiplier = getTPWalkSpeed()
     speedMultiplier = multiplier
     tpwalking = true
     applyButton.Text = "Disable TPWalk"
@@ -1089,7 +1234,6 @@ local function toggleFly()
     end
 
     if flying then
-        -- Disable humanoid states for flying
         humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
         humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
         humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, false)
@@ -1125,7 +1269,6 @@ local function toggleFly()
             track:AdjustSpeed(0)
         end
 
-        -- Teleportation movement for flying
         if character and humanoid and humanoid.Parent then
             flyTpConnection = RunService.Heartbeat:Connect(function(delta)
                 if not flying or not character or not humanoid or not humanoid.Parent then
@@ -1135,7 +1278,7 @@ local function toggleFly()
                     return
                 end
                 if humanoid.MoveDirection.Magnitude > 0 then
-                    local flyTpSpeed = humanoid.WalkSpeed * (getFlySpeed() / 50) -- Scale with flySpeed
+                    local flyTpSpeed = humanoid.WalkSpeed * (getFlySpeed() / 50)
                     character:TranslateBy(humanoid.MoveDirection * delta * flyTpSpeed)
                 end
             end)
@@ -1387,7 +1530,7 @@ local function toggleFullBright()
     fullbrightButton.BackgroundColor3 = fullbrightEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
 
     if fullbrightEnabled then
-        Lighting.Brightness = 1
+        Lighting.Brightness = 2
         Lighting.Ambient = Color3.fromRGB(255, 255, 255)
         Lighting.GlobalShadows = false
     else
@@ -1404,103 +1547,25 @@ local function toggleCameraShake()
     cameraShakeButton.BackgroundColor3 = cameraShakeEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
 
     if cameraShakeEnabled then
-        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = 60}):Play()
-        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 10}):Play()
-    else
-        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = defaultFOV}):Play()
-        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 0}):Play()
-    end
-end
+        local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
+        local blurTween = TweenService:Create(blurEffect, tweenInfo, {Size = 10})
+        local fovTween = TweenService:Create(Camera, tweenInfo, {FieldOfView = defaultFOV + 5})
+        local blurTweenBack = TweenService:Create(blurEffect, tweenInfo, {Size = 0})
+        local fovTweenBack = TweenService:Create(Camera, tweenInfo, {FieldOfView = defaultFOV})
 
--- Function to reapply X-Ray after respawn
-local function reapplyXRay(character)
-    if xrayEnabled then
-        for _, part in pairs(workspace:GetDescendants()) do
-            if part:IsA("BasePart") and not part.Parent:FindFirstChildWhichIsA("Humanoid") then
-                if not originalProperties[part] then
-                    originalProperties[part] = {
-                        Transparency = part.Transparency,
-                        LocalTransparencyModifier = part.LocalTransparencyModifier
-                    }
-                end
-                part.LocalTransparencyModifier = 0.5
+        spawn(function()
+            while cameraShakeEnabled do
+                blurTween:Play()
+                fovTween:Play()
+                wait(tweenTime)
+                blurTweenBack:Play()
+                fovTweenBack:Play()
+                wait(tweenTime)
             end
-        end
+            blurEffect.Size = 0
+            Camera.FieldOfView = defaultFOV
+        end)
     end
-end
-
--- Function to reapply NoClip after respawn
-local function reapplyNoClip(character)
-    if noclipEnabled then
-        for _, v in pairs(character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = false
-            end
-        end
-    end
-end
-
--- Function to reapply ESP after respawn
-local function reapplyESP()
-    if espEnabled then
-        toggleESP()
-    end
-end
-
--- Function to reapply FullBright after respawn
-local function reapplyFullBright()
-    if fullbrightEnabled then
-        Lighting.Brightness = 1
-        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
-        Lighting.GlobalShadows = false
-    end
-end
-
--- Function to restart TPWalk after respawn
-local function restartTPWalk(character)
-    if tpwalking then
-        local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
-        if character and humanoid and humanoid.Parent then
-            tpConnection = RunService.Heartbeat:Connect(function(delta)
-                if not tpwalking or not character or not humanoid or not humanoid.Parent then
-                    if tpConnection then
-                        tpConnection:Disconnect()
-                    end
-                    return
-                end
-
-                if humanoid.MoveDirection.Magnitude > 0 then
-                    local tpwalkSpeed = humanoid.WalkSpeed * speedMultiplier
-                    character:TranslateBy(humanoid.MoveDirection * delta * tpwalkSpeed)
-                end
-            end)
-        end
-    end
-end
-
--- Function to reapply Fly after respawn
-local function reapplyFly(character)
-    if flying then
-        toggleFly() -- Turn off first to clean up
-        toggleFly() -- Turn back on to reapply
-    end
-end
-
--- Function to reapply Camera Shake after respawn
-local function reapplyCameraShake()
-    if cameraShakeEnabled then
-        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = 60}):Play()
-        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 10}):Play()
-    else
-        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = defaultFOV}):Play()
-        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 0}):Play()
-    end
-end
-
--- Function to reapply Ignore Walls after respawn
-local function reapplyIgnoreWalls()
-    ignoreWallsButton.Text = ignoreWalls and "Ignore Walls On" or "Ignore Walls Off"
-    ignoreWallsButton.BackgroundColor3 = ignoreWalls and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
 end
 
 -- Toggle GUI visibility
@@ -1510,86 +1575,27 @@ local function toggleGUI()
     toggleButton.BackgroundColor3 = scrollingFrame.Visible and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(30, 30, 30)
 end
 
--- Connect button events
+-- Connect buttons
+toggleButton.MouseButton1Click:Connect(toggleGUI)
 applyButton.MouseButton1Click:Connect(startTPWalk)
 flyButton.MouseButton1Click:Connect(toggleFly)
+playerAimlockButton.MouseButton1Click:Connect(togglePlayerAimlock)
+npcAimlockButton.MouseButton1Click:Connect(toggleNPCAimlock)
+ignoreWallsButton.MouseButton1Click:Connect(toggleIgnoreWalls)
+hitboxButton.MouseButton1Click:Connect(toggleHitboxes)
 xrayButton.MouseButton1Click:Connect(toggleXRay)
 noclipButton.MouseButton1Click:Connect(toggleNoClip)
 espButton.MouseButton1Click:Connect(toggleESP)
 fullbrightButton.MouseButton1Click:Connect(toggleFullBright)
 cameraShakeButton.MouseButton1Click:Connect(toggleCameraShake)
-playerAimlockButton.MouseButton1Click:Connect(togglePlayerAimlock)
-npcAimlockButton.MouseButton1Click:Connect(toggleNPCAimlock)
-ignoreWallsButton.MouseButton1Click:Connect(toggleIgnoreWalls)
-toggleButton.MouseButton1Click:Connect(toggleGUI)
 
--- Keybind to toggle GUI (T)
-UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
-    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.T then
-        toggleGUI()
-    end
-end)
-
--- Handle respawn to maintain states
+-- Handle character added for NoClip
 player.CharacterAdded:Connect(function(character)
-    local humanoid = character:WaitForChild("Humanoid")
-    humanoid.Died:Connect(function()
-        if playerAimlockEnabled or npcAimlockEnabled then
-            playerAimlockEnabled = false
-            npcAimlockEnabled = false
-            playerAimlockButton.Text = "Player Aimlock Off"
-            playerAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-            npcAimlockButton.Text = "NPC Aimlock Off"
-            npcAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-            if aimlockConnection then aimlockConnection:Disconnect() end
-            target = nil
-            aimlockPaused = false
-            print("Aimlock disabled: Player died")
-        end
-        if flying then
-            flying = false
-            flyButton.Text = "Fly Off"
-            flyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-            if flyConnection then flyConnection:Disconnect() end
-            if flyTpConnection then flyTpConnection:Disconnect() end
-            if flyBodyGyro then flyBodyGyro:Destroy() end
-            if flyBodyVelocity then flyBodyVelocity:Destroy() end
-            humanoid.PlatformStand = false
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, true)
-            humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
-            humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
-            character.Animate.Disabled = false
-        end
-        if tpwalking then
-            tpwalking = false
-            applyButton.Text = "Enable TPWalk"
-            applyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-            if tpConnection then
-                tpConnection:Disconnect()
+    if noclipEnabled then
+        for _, v in pairs(character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
             end
         end
-    end)
-
-    wait(0.1) -- Ensure character is fully loaded
-    reapplyXRay(character)
-    reapplyNoClip(character)
-    reapplyESP()
-    reapplyFullBright()
-    restartTPWalk(character)
-    reapplyFly(character)
-    reapplyCameraShake()
-    reapplyIgnoreWalls()
+    end
 end)
