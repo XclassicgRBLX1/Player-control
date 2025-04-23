@@ -313,7 +313,7 @@ playerAimlockButtonStroke.Parent = playerAimlockButton
 
 -- Hover effect for Player Aimlock Button
 playerAimlockButton.MouseEnter:Connect(function()
-    playerAimlockButton.BackgroundColor3 = playerAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+    playerAimlockButton.BackgroundColor3 = playerAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, rell255, 255), 0.2)
 end)
 playerAimlockButton.MouseLeave:Connect(function()
     playerAimlockButton.BackgroundColor3 = playerAimlockButton.Text == "Player Aimlock Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
@@ -427,30 +427,6 @@ hitboxTeamTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
 hitboxTeamTextBoxStroke.Thickness = 1
 hitboxTeamTextBoxStroke.Parent = hitboxTeamTextBox
 
--- Create TextBox for NPC Hitbox Names
-local npcHitboxTextBox = Instance.new("TextBox")
-npcHitboxTextBox.Size = UDim2.new(1, 0, 0, 35)
-npcHitboxTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-npcHitboxTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-npcHitboxTextBox.PlaceholderText = "Enter NPC names for hitbox (comma-separated)"
-npcHitboxTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-npcHitboxTextBox.Text = ""
-npcHitboxTextBox.TextSize = 16
-npcHitboxTextBox.Font = Enum.Font.Gotham
-npcHitboxTextBox.TextScaled = true
-npcHitboxTextBox.LayoutOrder = 17
-npcHitboxTextBox.Parent = scrollingFrame
-
--- Add UICorner and UIStroke to NPC Hitbox TextBox
-local npcHitboxTextBoxCorner = Instance.new("UICorner")
-npcHitboxTextBoxCorner.CornerRadius = UDim.new(0, 4)
-npcHitboxTextBoxCorner.Parent = npcHitboxTextBox
-
-local npcHitboxTextBoxStroke = Instance.new("UIStroke")
-npcHitboxTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
-npcHitboxTextBoxStroke.Thickness = 1
-npcHitboxTextBoxStroke.Parent = npcHitboxTextBox
-
 -- Create Hitbox Toggle Button
 local hitboxButton = Instance.new("TextButton")
 hitboxButton.Size = UDim2.new(1, 0, 0, 35)
@@ -460,7 +436,7 @@ hitboxButton.Text = "Hitbox Off"
 hitboxButton.TextSize = 16
 hitboxButton.Font = Enum.Font.Gotham
 hitboxButton.TextScaled = true
-hitboxButton.LayoutOrder = 18
+hitboxButton.LayoutOrder = 17
 hitboxButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to Hitbox Button
@@ -481,42 +457,12 @@ hitboxButton.MouseLeave:Connect(function()
     hitboxButton.BackgroundColor3 = hitboxButton.Text == "Hitbox Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
 end)
 
--- Create NPC Hitbox Toggle Button
-local npcHitboxButton = Instance.new("TextButton")
-npcHitboxButton.Size = UDim2.new(1, 0, 0, 35)
-npcHitboxButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-npcHitboxButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-npcHitboxButton.Text = "NPC Hitbox Off"
-npcHitboxButton.TextSize = 16
-npcHitboxButton.Font = Enum.Font.Gotham
-npcHitboxButton.TextScaled = true
-npcHitboxButton.LayoutOrder = 19
-npcHitboxButton.Parent = scrollingFrame
-
--- Add UICorner and UIStroke to NPC Hitbox Button
-local npcHitboxButtonCorner = Instance.new("UICorner")
-npcHitboxButtonCorner.CornerRadius = UDim.new(0, 4)
-npcHitboxButtonCorner.Parent = npcHitboxButton
-
-local npcHitboxButtonStroke = Instance.new("UIStroke")
-npcHitboxButtonStroke.Color = Color3.fromRGB(80, 80, 80)
-npcHitboxButtonStroke.Thickness = 1
-npcHitboxButtonStroke.Parent = npcHitboxButton
-
--- Hover effect for NPC Hitbox Button
-npcHitboxButton.MouseEnter:Connect(function()
-    npcHitboxButton.BackgroundColor3 = npcHitboxButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
-end)
-npcHitboxButton.MouseLeave:Connect(function()
-    npcHitboxButton.BackgroundColor3 = npcHitboxButton.Text == "NPC Hitbox Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
-end)
-
 -- Create Separator for Toggles Section
 local togglesSeparator = Instance.new("Frame")
 togglesSeparator.Size = UDim2.new(1, 0, 0, 2)
 togglesSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
 togglesSeparator.BorderSizePixel = 0
-togglesSeparator.LayoutOrder = 20
+togglesSeparator.LayoutOrder = 18
 togglesSeparator.Parent = scrollingFrame
 
 -- Create X-Ray Toggle Button
@@ -528,7 +474,7 @@ xrayButton.Text = "X-Ray Off"
 xrayButton.TextSize = 16
 xrayButton.Font = Enum.Font.Gotham
 xrayButton.TextScaled = true
-xrayButton.LayoutOrder = 21
+xrayButton.LayoutOrder = 19
 xrayButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to X-Ray Button
@@ -558,7 +504,7 @@ noclipButton.Text = "NoClip Off"
 noclipButton.TextSize = 16
 noclipButton.Font = Enum.Font.Gotham
 noclipButton.TextScaled = true
-noclipButton.LayoutOrder = 22
+noclipButton.LayoutOrder = 20
 noclipButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to NoClip Button
@@ -588,7 +534,7 @@ espButton.Text = "ESP Off"
 espButton.TextSize = 16
 espButton.Font = Enum.Font.Gotham
 espButton.TextScaled = true
-espButton.LayoutOrder = 23
+espButton.LayoutOrder = 21
 espButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to ESP Button
@@ -618,7 +564,7 @@ fullbrightButton.Text = "FullBright Off"
 fullbrightButton.TextSize = 16
 fullbrightButton.Font = Enum.Font.Gotham
 fullbrightButton.TextScaled = true
-fullbrightButton.LayoutOrder = 24
+fullbrightButton.LayoutOrder = 22
 fullbrightButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to FullBright Button
@@ -648,7 +594,7 @@ cameraShakeButton.Text = "CamShake Off"
 cameraShakeButton.TextSize = 16
 cameraShakeButton.Font = Enum.Font.Gotham
 cameraShakeButton.TextScaled = true
-cameraShakeButton.LayoutOrder = 25
+cameraShakeButton.LayoutOrder = 23
 cameraShakeButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to Camera Shake Button
@@ -777,12 +723,6 @@ local hitboxSize = 20
 local hitboxConnection
 local originalHitboxProperties = {}
 
--- NPC Hitbox variables
-local npcHitboxEnabled = false
-local npcHitboxConnection
-local originalNPCHitboxProperties = {}
-local potentialNPCHitboxes = {}
-
 -- Function to parse comma-separated input
 local function parseInput(input)
     local items = {}
@@ -878,27 +818,11 @@ local function updateNPCCache()
     end
 end
 
--- Function to update NPC hitbox cache
-local function updateNPCHitboxCache()
-    potentialNPCHitboxes = {}
-    for _, model in pairs(workspace:GetDescendants()) do
-        if model:IsA("Model") then
-            local humanoid = model:FindFirstChildWhichIsA("Humanoid")
-            local rootPart = model:FindFirstChild("HumanoidRootPart")
-            if humanoid and rootPart and not Players:GetPlayerFromCharacter(model) then
-                table.insert(potentialNPCHitboxes, model)
-            end
-        end
-    end
-end
-
 updateNPCCache()
-updateNPCHitboxCache()
 spawn(function()
     while true do
         wait(5)
         updateNPCCache()
-        updateNPCHitboxCache()
     end
 end)
 
@@ -978,7 +902,7 @@ local function toggleIgnoreWalls()
     ignoreWallsButton.BackgroundColor3 = ignoreWalls and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
 end
 
--- Function to toggle player hitbox
+-- Function to toggle hitbox
 local function toggleHitbox()
     hitboxEnabled = not hitboxEnabled
     hitboxButton.Text = hitboxEnabled and "Hitbox On" or "Hitbox Off"
@@ -1050,76 +974,7 @@ local function toggleHitbox()
     end
 end
 
--- Function to toggle NPC hitbox
-local function toggleNPCHitbox()
-    npcHitboxEnabled = not npcHitboxEnabled
-    npcHitboxButton.Text = npcHitboxEnabled and "NPC Hitbox On" or "NPC Hitbox Off"
-    npcHitboxButton.BackgroundColor3 = npcHitboxEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    if npcHitboxConnection then
-        npcHitboxConnection:Disconnect()
-        npcHitboxConnection = nil
-    end
-    if npcHitboxEnabled then
-        npcHitboxConnection = RunService.RenderStepped:Connect(function()
-            local localPlayer = Players.LocalPlayer
-            if not localPlayer or not localPlayer.Character then
-                return
-            end
-            local npcNames = parseInput(npcHitboxTextBox.Text)
-            local lowerNpcNames = {}
-            for _, name in pairs(npcNames) do
-                table.insert(lowerNpcNames, name:lower())
-            end
-            local headSize = getHitboxSize()
-            for _, model in ipairs(potentialNPCHitboxes) do
-                if model.Parent then
-                    local humanoidRootPart = model:FindFirstChild("HumanoidRootPart")
-                    local humanoid = model:FindFirstChildWhichIsA("Humanoid")
-                    if humanoidRootPart and humanoid and humanoid.Health > 0 then
-                        local nameValid = #npcNames == 0 or table.find(lowerNpcNames, model.Name:lower())
-                        if nameValid then
-                            if not originalNPCHitboxProperties[humanoidRootPart] then
-                                originalNPCHitboxProperties[humanoidRootPart] = {
-                                    Size = humanoidRootPart.Size,
-                                    Transparency = humanoidRootPart.Transparency,
-                                    BrickColor = humanoidRootPart.BrickColor,
-                                    Material = humanoidRootPart.Material,
-                                    CanCollide = humanoidRootPart.CanCollide
-                                }
-                            end
-                            humanoidRootPart.Size = Vector3.new(headSize, headSize, headSize)
-                            humanoidRootPart.Transparency = 0.7
-                            humanoidRootPart.BrickColor = BrickColor.new("Really blue")
-                            humanoidRootPart.Material = Enum.Material.Neon
-                            humanoidRootPart.CanCollide = false
-                        else
-                            if originalNPCHitboxProperties[humanoidRootPart] then
-                                humanoidRootPart.Size = originalNPCHitboxProperties[humanoidRootPart].Size
-                                humanoidRootPart.Transparency = originalNPCHitboxProperties[humanoidRootPart].Transparency
-                                humanoidRootPart.BrickColor = originalNPCHitboxProperties[humanoidRootPart].BrickColor
-                                humanoidRootPart.Material = originalNPCHitboxProperties[humanoidRootPart].Material
-                                humanoidRootPart.CanCollide = originalNPCHitboxProperties[humanoidRootPart].CanCollide
-                            end
-                        end
-                    end
-                end
-            end
-        end)
-    else
-        for humanoidRootPart, properties in pairs(originalNPCHitboxProperties) do
-            if humanoidRootPart and humanoidRootPart.Parent then
-                humanoidRootPart.Size = properties.Size
-                humanoidRootPart.Transparency = properties.Transparency
-                humanoidRootPart.BrickColor = properties.BrickColor
-                humanoidRootPart.Material = properties.Material
-                humanoidRootPart.CanCollide = properties.CanCollide
-            end
-        end
-        originalNPCHitboxProperties = {}
-    end
-end
-
--- Function to reapply player hitbox on respawn
+-- Function to reapply hitbox on respawn
 local function reapplyHitbox()
     if hitboxEnabled then
         local wasEnabled = hitboxEnabled
@@ -1128,29 +983,11 @@ local function reapplyHitbox()
     end
 end
 
--- Function to reapply NPC hitbox on new NPC addition
-local function reapplyNPCHitbox()
-    if npcHitboxEnabled then
-        local wasEnabled = npcHitboxEnabled
-        toggleNPCHitbox()
-        toggleNPCHitbox()
-    end
-end
-
--- Connect hitbox toggles
+-- Connect hitbox toggle
 hitboxButton.MouseButton1Click:Connect(toggleHitbox)
-npcHitboxButton.MouseButton1Click:Connect(toggleNPCHitbox)
 
 -- Connect player respawn
 player.CharacterAdded:Connect(reapplyHitbox)
-
--- Connect NPC addition
-workspace.DescendantAdded:Connect(function(descendant)
-    if descendant:IsA("Model") and descendant:FindFirstChildWhichIsA("Humanoid") and descendant:FindFirstChild("HumanoidRootPart") and not Players:GetPlayerFromCharacter(descendant) then
-        updateNPCHitboxCache()
-        reapplyNPCHitbox()
-    end
-end)
 
 -- Function to toggle player aimlock
 local function togglePlayerAimlock()
@@ -1326,7 +1163,7 @@ local function toggleFly()
         humanoid:ChangeState(Enum.HumanoidStateType.Swimming)
         local rootPart = (humanoid.RigType == Enum.HumanoidRigType.R6 and character:FindFirstChild("Torso")) or character:FindFirstChild("UpperTorso")
         if not rootPart then return end
-        flyBody Claud = Instance.new("BodyGyro", rootPart)
+        flyBodyGyro = Instance.new("BodyGyro", rootPart)
         flyBodyGyro.P = 9e4
         flyBodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
         flyBodyGyro.CFrame = rootPart.CFrame
@@ -1507,171 +1344,131 @@ local function toggleESP()
     espEnabled = not espEnabled
     espButton.Text = espEnabled and "ESP On" or "ESP Off"
     espButton.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    if espEnabled then
+    local function updateESP()
+        for _, highlight in pairs(highlights) do
+            if highlight then highlight:Destroy() end
+        end
+        for _, beam in pairs(beams) do
+            if beam then beam:Destroy() end
+        end
+        highlights = {}
+        beams = {}
+        if not espEnabled then return end
+        local localChar = player.Character
+        if not localChar or not localChar:FindFirstChild("HumanoidRootPart") then
+            return
+        end
         for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= player and otherPlayer.Character then
-                local humanoidRootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart then
+            if otherPlayer ~= player then
+                local playerChar = otherPlayer.Character
+                if playerChar and playerChar:FindFirstChild("HumanoidRootPart") then
+                    local espColor = Color3.fromRGB(255, 0, 0)
+                    if #Teams:GetTeams() > 0 and otherPlayer.Team then
+                        espColor = otherPlayer.Team.TeamColor.Color
+                    end
                     local highlight = Instance.new("Highlight")
-                    highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    highlight.FillTransparency = 0.5
-                    highlight.OutlineTransparency = 0
-                    highlight.Adornee = otherPlayer.Character
-                    highlight.Parent = otherPlayer.Character
+                    highlight.Name = "ESPHighlight"
+                    highlight.FillColor = espColor
+                    highlight.OutlineColor = espColor
+                    highlight.Parent = playerChar
                     highlights[otherPlayer] = highlight
+                    local attachment0 = Instance.new("Attachment")
+                    attachment0.Parent = localChar:FindFirstChild("HumanoidRootPart")
+                    local attachment1 = Instance.new("Attachment")
+                    attachment1.Parent = playerChar:FindFirstChild("HumanoidRootPart")
                     local beam = Instance.new("Beam")
-                    beam.Color = ColorSequence.new(Color3.fromRGB(255, 0, 0))
-                    beam.Width0 = 0.2
-                    beam.Width1 = 0.2
+                    beam.Name = "ESPBeam"
+                    beam.Attachment0 = attachment0
+                    beam.Attachment1 = attachment1
+                    beam.Color = ColorSequence.new(espColor)
                     beam.FaceCamera = true
-                    beam.Enabled = true
-                    beam.Attachment0 = Instance.new("Attachment", humanoidRootPart)
-                    beam.Attachment1 = Instance.new("Attachment", player.Character and player.Character:FindFirstChild("HumanoidRootPart"))
-beam.Parent = humanoidRootPart
-beams[otherPlayer] = beam
-end
-end
-end
-for _, model in pairs(potentialNPCs) do
-if model.Parent then
-local humanoid = model:FindFirstChildWhichIsA("Humanoid")
-local rootPart = model:FindFirstChild("HumanoidRootPart") or model:FindFirstChild("Head")
-if humanoid and rootPart and humanoid.Health > 0 then
-local highlight = Instance.new("Highlight")
-highlight.FillColor = Color3.fromRGB(0, 255, 0)
-highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
-highlight.FillTransparency = 0.5
-highlight.OutlineTransparency = 0
-highlight.Adornee = model
-highlight.Parent = model
-highlights[model] = highlight
-local beam = Instance.new("Beam")
-beam.Color = ColorSequence.new(Color3.fromRGB(0, 255, 0))
-beam.Width0 = 0.2
-beam.Width1 = 0.2
-beam.FaceCamera = true
-beam.Enabled = true
-beam.Attachment0 = Instance.new("Attachment", rootPart)
-beam.Attachment1 = Instance.new("Attachment", player.Character and player.Character:FindFirstChild("HumanoidRootPart"))
-beam.Parent = rootPart
-beams[model] = beam
-end
-end
-end
-else
-for _, highlight in pairs(highlights) do
-if highlight then
-highlight:Destroy()
-end
-end
-for _, beam in pairs(beams) do
-if beam then
-beam:Destroy()
-end
-end
-highlights = {}
-beams = {}
-end
+                    beam.Width0 = 0.15
+                    beam.Width1 = 0.15
+                    beam.Parent = playerChar
+                    beams[otherPlayer] = beam
+                end
+            end
+        end
+    end
+    updateESP()
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            otherPlayer.CharacterAdded:Connect(function()
+                if espEnabled then
+                    wait(0.1)
+                    updateESP()
+                end
+            end)
+            otherPlayer.CharacterRemoving:Connect(function()
+                if highlights[otherPlayer] then
+                    highlights[otherPlayer]:Destroy()
+                    highlights[otherPlayer] = nil
+                end
+                if beams[otherPlayer] then
+                    beams[otherPlayer]:Destroy()
+                    beams[otherPlayer] = nil
+                end
+            end)
+        end
+    end
 end
 
 -- FullBright function
 local function toggleFullBright()
-fullbrightEnabled = not fullbrightEnabled
-fullbrightButton.Text = fullbrightEnabled and "FullBright On" or "FullBright Off"
-fullbrightButton.BackgroundColor3 = fullbrightEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-if fullbrightEnabled then
-Lighting.Brightness = 2
-Lighting.Ambient = Color3.fromRGB(255, 255, 255)
-Lighting.GlobalShadows = false
-else
-Lighting.Brightness = originalLighting.Brightness
-Lighting.Ambient = originalLighting.Ambient
-Lighting.GlobalShadows = originalLighting.GlobalShadows
-end
+    fullbrightEnabled = not fullbrightEnabled
+    fullbrightButton.Text = fullbrightEnabled and "FullBright On" or "FullBright Off"
+    fullbrightButton.BackgroundColor3 = fullbrightEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    if fullbrightEnabled then
+        Lighting.Brightness = 1
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+        Lighting.GlobalShadows = false
+    else
+        Lighting.Brightness = originalLighting.Brightness
+        Lighting.Ambient = originalLighting.Ambient
+        Lighting.GlobalShadows = originalLighting.GlobalShadows
+    end
 end
 
 -- Camera Shake function
 local function toggleCameraShake()
-cameraShakeEnabled = not cameraShakeEnabled
-cameraShakeButton.Text = cameraShakeEnabled and "CamShake On" or "CamShake Off"
-cameraShakeButton.BackgroundColor3 = cameraShakeEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-if cameraShakeEnabled then
-local connection
-connection = RunService.RenderStepped:Connect(function()
-if not cameraShakeEnabled or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
-if connection then connection:Disconnect() end
-blurEffect.Size = 0
-Camera.FieldOfView = defaultFOV
-cameraShakeEnabled = false
-cameraShakeButton.Text = "CamShake Off"
-cameraShakeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-return
-end
-local humanoid = player.Character.Humanoid
-if humanoid.MoveDirection.Magnitude > 0 then
-local blurInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-local fovInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-local blurTween = TweenService:Create(blurEffect, blurInfo, {Size = 5})
-local fovTween = TweenService:Create(Camera, fovInfo, {FieldOfView = defaultFOV + 5})
-blurTween:Play()
-fovTween:Play()
-else
-local blurInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-local fovInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut)
-local blurTween = TweenService:Create(blurEffect, blurInfo, {Size = 0})
-local fovTween = TweenService:Create(Camera, fovInfo, {FieldOfView = defaultFOV})
-blurTween:Play()
-fovTween:Play()
-end
-end)
-else
-blurEffect.Size = 0
-Camera.FieldOfView = defaultFOV
-end
+    cameraShakeEnabled = not cameraShakeEnabled
+    cameraShakeButton.Text = cameraShakeEnabled and "CamShake On" or "CamShake Off"
+    cameraShakeButton.BackgroundColor3 = cameraShakeEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    if cameraShakeEnabled then
+        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = 60}):Play()
+        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 10}):Play()
+    else
+        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = defaultFOV}):Play()
+        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 0}):Play()
+    end
 end
 
--- Toggle GUI visibility
-local function toggleGUI()
-scrollingFrame.Visible = not scrollingFrame.Visible
-toggleButton.Text = scrollingFrame.Visible and "On" or "Off"
-toggleButton.BackgroundColor3 = scrollingFrame.Visible and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(30, 30, 30)
-end
-
--- Connect button clicks
+-- Connect buttons
 applyButton.MouseButton1Click:Connect(startTPWalk)
 flyButton.MouseButton1Click:Connect(toggleFly)
-playerAimlockButton.MouseButton1Click:Connect(togglePlayerAimlock)
-npcAimlockButton.MouseButton1Click:Connect(toggleNPCAimlock)
-ignoreWallsButton.MouseButton1Click:Connect(toggleIgnoreWalls)
 xrayButton.MouseButton1Click:Connect(toggleXRay)
 noclipButton.MouseButton1Click:Connect(toggleNoClip)
 espButton.MouseButton1Click:Connect(toggleESP)
 fullbrightButton.MouseButton1Click:Connect(toggleFullBright)
 cameraShakeButton.MouseButton1Click:Connect(toggleCameraShake)
-toggleButton.MouseButton1Click:Connect(toggleGUI)
+playerAimlockButton.MouseButton1Click:Connect(togglePlayerAimlock)
+npcAimlockButton.MouseButton1Click:Connect(toggleNPCAimlock)
+ignoreWallsButton.MouseButton1Click:Connect(toggleIgnoreWalls)
 
--- Handle player respawn for NoClip
-player.CharacterAdded:Connect(function(character)
-if noclipEnabled then
-for _, v in pairs(character:GetDescendants()) do
-if v:IsA("BasePart") then
-v.CanCollide = false
-end
-end
-end
+-- Toggle GUI visibility
+toggleButton.MouseButton1Click:Connect(function()
+    scrollingFrame.Visible = not scrollingFrame.Visible
+    toggleButton.Text = scrollingFrame.Visible and "On" or "Off"
+    toggleButton.BackgroundColor3 = scrollingFrame.Visible and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(30, 30, 30)
 end)
 
--- Cleanup on player leave
-player.AncestryChanged:Connect(function()
-if not player:IsDescendantOf(game) then
-if tpConnection then tpConnection:Disconnect() end
-if flyConnection then flyConnection:Disconnect() end
-if flyTpConnection then flyTpConnection:Disconnect() end
-if aimlockConnection then aimlockConnection:Disconnect() end
-if hitboxConnection then hitboxConnection:Disconnect() end
-if npcHitboxConnection then npcHitboxConnection:Disconnect() end
-blurEffect:Destroy()
-screenGui:Destroy()
-end
+-- Handle character added for NoClip
+player.CharacterAdded:Connect(function(character)
+    if noclipEnabled then
+        for _, v in pairs(character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+    end
 end)
