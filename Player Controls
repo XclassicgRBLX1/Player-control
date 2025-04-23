@@ -1,0 +1,1595 @@
+local player = game.Players.LocalPlayer
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local Teams = game:GetService("Teams")
+local Lighting = game:GetService("Lighting")
+local Camera = workspace.CurrentCamera
+local TweenService = game:GetService("TweenService")
+
+-- Create GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player.PlayerGui
+screenGui.Name = "ControlGUI"
+screenGui.ResetOnSpawn = false
+
+-- Create ScrollingFrame
+local scrollingFrame = Instance.new("ScrollingFrame")
+scrollingFrame.Size = UDim2.new(0, 220, 0, 500)
+scrollingFrame.Position = UDim2.new(0.5, -110, 0.5, -250)
+scrollingFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+scrollingFrame.BorderSizePixel = 0
+scrollingFrame.ScrollBarThickness = 4
+scrollingFrame.ScrollBarImageColor3 = Color3.fromRGB(100, 100, 100)
+scrollingFrame.Visible = false
+scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+scrollingFrame.Parent = screenGui
+
+-- Add UICorner to ScrollingFrame
+local frameCorner = Instance.new("UICorner")
+frameCorner.CornerRadius = UDim.new(0, 8)
+frameCorner.Parent = scrollingFrame
+
+-- Add UIStroke to ScrollingFrame
+local frameStroke = Instance.new("UIStroke")
+frameStroke.Thickness = 2
+frameStroke.Color = Color3.fromRGB(106, 109, 222)
+frameStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+frameStroke.Parent = scrollingFrame
+
+-- Add UIListLayout to ScrollingFrame
+local listLayout = Instance.new("UIListLayout")
+listLayout.SortOrder = Enum.SortOrder.LayoutOrder
+listLayout.Padding = UDim.new(0, 5)
+listLayout.Parent = scrollingFrame
+
+-- Add UIPadding to ScrollingFrame
+local padding = Instance.new("UIPadding")
+padding.PaddingTop = UDim.new(0, 10)
+padding.PaddingBottom = UDim.new(0, 10)
+padding.PaddingLeft = UDim.new(0, 10)
+padding.PaddingRight = UDim.new(0, 10)
+padding.Parent = scrollingFrame
+
+-- Create Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.BackgroundTransparency = 1
+titleLabel.Text = "Player Controls"
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 20
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextScaled = true
+titleLabel.LayoutOrder = 0
+titleLabel.Parent = scrollingFrame
+
+-- Create Separator for TPWalk Section
+local tpWalkSeparator = Instance.new("Frame")
+tpWalkSeparator.Size = UDim2.new(1, 0, 0, 2)
+tpWalkSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+tpWalkSeparator.BorderSizePixel = 0
+tpWalkSeparator.LayoutOrder = 1
+tpWalkSeparator.Parent = scrollingFrame
+
+-- Create TextBox for speed multiplier (TPWalk)
+local speedTextBox = Instance.new("TextBox")
+speedTextBox.Size = UDim2.new(1, 0, 0, 35)
+speedTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+speedTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+speedTextBox.PlaceholderText = "Enter TPWalk speed multiplier"
+speedTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+speedTextBox.Text = "1"
+speedTextBox.TextSize = 16
+speedTextBox.Font = Enum.Font.Gotham
+speedTextBox.TextScaled = true
+speedTextBox.LayoutOrder = 2
+speedTextBox.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to TPWalk Speed TextBox
+local speedTextBoxCorner = Instance.new("UICorner")
+speedTextBoxCorner.CornerRadius = UDim.new(0, 4)
+speedTextBoxCorner.Parent = speedTextBox
+
+local speedTextBoxStroke = Instance.new("UIStroke")
+speedTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
+speedTextBoxStroke.Thickness = 1
+speedTextBoxStroke.Parent = speedTextBox
+
+-- Create Apply Button (to toggle TPWalk)
+local applyButton = Instance.new("TextButton")
+applyButton.Size = UDim2.new(1, 0, 0, 35)
+applyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+applyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+applyButton.Text = "Enable TPWalk"
+applyButton.TextSize = 16
+applyButton.Font = Enum.Font.Gotham
+applyButton.TextScaled = true
+applyButton.LayoutOrder = 3
+applyButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Apply Button
+local applyButtonCorner = Instance.new("UICorner")
+applyButtonCorner.CornerRadius = UDim.new(0, 4)
+applyButtonCorner.Parent = applyButton
+
+local applyButtonStroke = Instance.new("UIStroke")
+applyButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+applyButtonStroke.Thickness = 1
+applyButtonStroke.Parent = applyButton
+
+-- Hover effect for Apply Button
+applyButton.MouseEnter:Connect(function()
+    applyButton.BackgroundColor3 = applyButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+applyButton.MouseLeave:Connect(function()
+    applyButton.BackgroundColor3 = applyButton.Text == "Enable TPWalk" and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+end)
+
+-- Create Separator for Fly Section
+local flySeparator = Instance.new("Frame")
+flySeparator.Size = UDim2.new(1, 0, 0, 2)
+flySeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+flySeparator.BorderSizePixel = 0
+flySeparator.LayoutOrder = 4
+flySeparator.Parent = scrollingFrame
+
+-- Create TextBox for Fly Speed
+local flySpeedTextBox = Instance.new("TextBox")
+flySpeedTextBox.Size = UDim2.new(1, 0, 0, 35)
+flySpeedTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+flySpeedTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+flySpeedTextBox.PlaceholderText = "Enter fly speed (1-1000)"
+flySpeedTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+flySpeedTextBox.Text = "50"
+flySpeedTextBox.TextSize = 16
+flySpeedTextBox.Font = Enum.Font.Gotham
+flySpeedTextBox.TextScaled = true
+flySpeedTextBox.LayoutOrder = 5
+flySpeedTextBox.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Fly Speed TextBox
+local flySpeedTextBoxCorner = Instance.new("UICorner")
+flySpeedTextBoxCorner.CornerRadius = UDim.new(0, 4)
+flySpeedTextBoxCorner.Parent = flySpeedTextBox
+
+local flySpeedTextBoxStroke = Instance.new("UIStroke")
+flySpeedTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
+flySpeedTextBoxStroke.Thickness = 1
+flySpeedTextBoxStroke.Parent = flySpeedTextBox
+
+-- Create Fly Speed Label
+local flySpeedLabel = Instance.new("TextLabel")
+flySpeedLabel.Size = UDim2.new(1, 0, 0, 35)
+flySpeedLabel.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+flySpeedLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+flySpeedLabel.Text = "Fly Speed: 50"
+flySpeedLabel.TextSize = 16
+flySpeedLabel.Font = Enum.Font.Gotham
+flySpeedLabel.TextScaled = true
+flySpeedLabel.LayoutOrder = 6
+flySpeedLabel.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Fly Speed Label
+local flySpeedLabelCorner = Instance.new("UICorner")
+flySpeedLabelCorner.CornerRadius = UDim.new(0, 4)
+flySpeedLabelCorner.Parent = flySpeedLabel
+
+local flySpeedLabelStroke = Instance.new("UIStroke")
+flySpeedLabelStroke.Color = Color3.fromRGB(80, 80, 80)
+flySpeedLabelStroke.Thickness = 1
+flySpeedLabelStroke.Parent = flySpeedLabel
+
+-- Create Fly Toggle Button
+local flyButton = Instance.new("TextButton")
+flyButton.Size = UDim2.new(1, 0, 0, 35)
+flyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+flyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+flyButton.Text = "Fly Off"
+flyButton.TextSize = 16
+flyButton.Font = Enum.Font.Gotham
+flyButton.TextScaled = true
+flyButton.LayoutOrder = 7
+flyButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Fly Button
+local flyButtonCorner = Instance.new("UICorner")
+flyButtonCorner.CornerRadius = UDim.new(0, 4)
+flyButtonCorner.Parent = flyButton
+
+local flyButtonStroke = Instance.new("UIStroke")
+flyButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+flyButtonStroke.Thickness = 1
+flyButtonStroke.Parent = flyButton
+
+-- Hover effect for Fly Button
+flyButton.MouseEnter:Connect(function()
+    flyButton.BackgroundColor3 = flyButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+flyButton.MouseLeave:Connect(function()
+    flyButton.BackgroundColor3 = flyButton.Text == "Fly Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Create Separator for Aimlock Section
+local aimlockSeparator = Instance.new("Frame")
+aimlockSeparator.Size = UDim2.new(1, 0, 0, 2)
+aimlockSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+aimlockSeparator.BorderSizePixel = 0
+aimlockSeparator.LayoutOrder = 8
+aimlockSeparator.Parent = scrollingFrame
+
+-- Create TextBox for Aimlock Range
+local rangeTextBox = Instance.new("TextBox")
+rangeTextBox.Size = UDim2.new(1, 0, 0, 35)
+rangeTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+rangeTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+rangeTextBox.PlaceholderText = "Enter aimlock range (studs)"
+rangeTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+rangeTextBox.Text = "100"
+rangeTextBox.TextSize = 16
+rangeTextBox.Font = Enum.Font.Gotham
+rangeTextBox.TextScaled = true
+rangeTextBox.LayoutOrder = 9
+rangeTextBox.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Range TextBox
+local rangeTextBoxCorner = Instance.new("UICorner")
+rangeTextBoxCorner.CornerRadius = UDim.new(0, 4)
+rangeTextBoxCorner.Parent = rangeTextBox
+
+local rangeTextBoxStroke = Instance.new("UIStroke")
+rangeTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
+rangeTextBoxStroke.Thickness = 1
+rangeTextBoxStroke.Parent = rangeTextBox
+
+-- Create TextBox for NPC names
+local npcTextBox = Instance.new("TextBox")
+npcTextBox.Size = UDim2.new(1, 0, 0, 35)
+npcTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+npcTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+npcTextBox.PlaceholderText = "Enter NPC names (comma-separated)"
+npcTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+npcTextBox.Text = ""
+npcTextBox.TextSize = 16
+npcTextBox.Font = Enum.Font.Gotham
+npcTextBox.TextScaled = true
+npcTextBox.LayoutOrder = 10
+npcTextBox.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to NPC TextBox
+local npcTextBoxCorner = Instance.new("UICorner")
+npcTextBoxCorner.CornerRadius = UDim.new(0, 4)
+npcTextBoxCorner.Parent = npcTextBox
+
+local npcTextBoxStroke = Instance.new("UIStroke")
+npcTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
+npcTextBoxStroke.Thickness = 1
+npcTextBoxStroke.Parent = npcTextBox
+
+-- Create TextBox for Team names
+local teamTextBox = Instance.new("TextBox")
+teamTextBox.Size = UDim2.new(1, 0, 0, 35)
+teamTextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+teamTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+teamTextBox.PlaceholderText = "Enter teams to exclude (comma-separated)"
+teamTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
+teamTextBox.Text = ""
+teamTextBox.TextSize = 16
+teamTextBox.Font = Enum.Font.Gotham
+teamTextBox.TextScaled = true
+teamTextBox.LayoutOrder = 11
+teamTextBox.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Team TextBox
+local teamTextBoxCorner = Instance.new("UICorner")
+teamTextBoxCorner.CornerRadius = UDim.new(0, 4)
+teamTextBoxCorner.Parent = teamTextBox
+
+local teamTextBoxStroke = Instance.new("UIStroke")
+teamTextBoxStroke.Color = Color3.fromRGB(80, 80, 80)
+teamTextBoxStroke.Thickness = 1
+teamTextBoxStroke.Parent = teamTextBox
+
+-- Create Player Aimlock Button
+local playerAimlockButton = Instance.new("TextButton")
+playerAimlockButton.Size = UDim2.new(1, 0, 0, 35)
+playerAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+playerAimlockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+playerAimlockButton.Text = "Player Aimlock Off"
+playerAimlockButton.TextSize = 16
+playerAimlockButton.Font = Enum.Font.Gotham
+playerAimlockButton.TextScaled = true
+playerAimlockButton.LayoutOrder = 12
+playerAimlockButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Player Aimlock Button
+local playerAimlockButtonCorner = Instance.new("UICorner")
+playerAimlockButtonCorner.CornerRadius = UDim.new(0, 4)
+playerAimlockButtonCorner.Parent = playerAimlockButton
+
+local playerAimlockButtonStroke = Instance.new("UIStroke")
+playerAimlockButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+playerAimlockButtonStroke.Thickness = 1
+playerAimlockButtonStroke.Parent = playerAimlockButton
+
+-- Hover effect for Player Aimlock Button
+playerAimlockButton.MouseEnter:Connect(function()
+    playerAimlockButton.BackgroundColor3 = playerAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+playerAimlockButton.MouseLeave:Connect(function()
+    playerAimlockButton.BackgroundColor3 = playerAimlockButton.Text == "Player Aimlock Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Create NPC Aimlock Button
+local npcAimlockButton = Instance.new("TextButton")
+npcAimlockButton.Size = UDim2.new(1, 0, 0, 35)
+npcAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+npcAimlockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+npcAimlockButton.Text = "NPC Aimlock Off"
+npcAimlockButton.TextSize = 16
+npcAimlockButton.Font = Enum.Font.Gotham
+npcAimlockButton.TextScaled = true
+npcAimlockButton.LayoutOrder = 13
+npcAimlockButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to NPC Aimlock Button
+local npcAimlockButtonCorner = Instance.new("UICorner")
+npcAimlockButtonCorner.CornerRadius = UDim.new(0, 4)
+npcAimlockButtonCorner.Parent = npcAimlockButton
+
+local npcAimlockButtonStroke = Instance.new("UIStroke")
+npcAimlockButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+npcAimlockButtonStroke.Thickness = 1
+npcAimlockButtonStroke.Parent = npcAimlockButton
+
+-- Hover effect for NPC Aimlock Button
+npcAimlockButton.MouseEnter:Connect(function()
+    npcAimlockButton.BackgroundColor3 = npcAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+npcAimlockButton.MouseLeave:Connect(function()
+    npcAimlockButton.BackgroundColor3 = npcAimlockButton.Text == "NPC Aimlock Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Create Ignore Walls Toggle Button
+local ignoreWallsButton = Instance.new("TextButton")
+ignoreWallsButton.Size = UDim2.new(1, 0, 0, 35)
+ignoreWallsButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+ignoreWallsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ignoreWallsButton.Text = "Ignore Walls Off"
+ignoreWallsButton.TextSize = 16
+ignoreWallsButton.Font = Enum.Font.Gotham
+ignoreWallsButton.TextScaled = true
+ignoreWallsButton.LayoutOrder = 14
+ignoreWallsButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Ignore Walls Button
+local ignoreWallsButtonCorner = Instance.new("UICorner")
+ignoreWallsButtonCorner.CornerRadius = UDim.new(0, 4)
+ignoreWallsButtonCorner.Parent = ignoreWallsButton
+
+local ignoreWallsButtonStroke = Instance.new("UIStroke")
+ignoreWallsButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+ignoreWallsButtonStroke.Thickness = 1
+ignoreWallsButtonStroke.Parent = ignoreWallsButton
+
+-- Hover effect for Ignore Walls Button
+ignoreWallsButton.MouseEnter:Connect(function()
+    ignoreWallsButton.BackgroundColor3 = ignoreWallsButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+ignoreWallsButton.MouseLeave:Connect(function()
+    ignoreWallsButton.BackgroundColor3 = ignoreWallsButton.Text == "Ignore Walls Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Create Separator for Toggles Section
+local togglesSeparator = Instance.new("Frame")
+togglesSeparator.Size = UDim2.new(1, 0, 0, 2)
+togglesSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 80)
+togglesSeparator.BorderSizePixel = 0
+togglesSeparator.LayoutOrder = 15
+togglesSeparator.Parent = scrollingFrame
+
+-- Create X-Ray Toggle Button
+local xrayButton = Instance.new("TextButton")
+xrayButton.Size = UDim2.new(1, 0, 0, 35)
+xrayButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+xrayButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+xrayButton.Text = "X-Ray Off"
+xrayButton.TextSize = 16
+xrayButton.Font = Enum.Font.Gotham
+xrayButton.TextScaled = true
+xrayButton.LayoutOrder = 16
+xrayButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to X-Ray Button
+local xrayButtonCorner = Instance.new("UICorner")
+xrayButtonCorner.CornerRadius = UDim.new(0, 4)
+xrayButtonCorner.Parent = xrayButton
+
+local xrayButtonStroke = Instance.new("UIStroke")
+xrayButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+xrayButtonStroke.Thickness = 1
+xrayButtonStroke.Parent = xrayButton
+
+-- Hover effect for X-Ray Button
+xrayButton.MouseEnter:Connect(function()
+    xrayButton.BackgroundColor3 = xrayButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+xrayButton.MouseLeave:Connect(function()
+    xrayButton.BackgroundColor3 = xrayButton.Text == "X-Ray Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Create NoClip Toggle Button
+local noclipButton = Instance.new("TextButton")
+noclipButton.Size = UDim2.new(1, 0, 0, 35)
+noclipButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+noclipButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+noclipButton.Text = "NoClip Off"
+noclipButton.TextSize = 16
+noclipButton.Font = Enum.Font.Gotham
+noclipButton.TextScaled = true
+noclipButton.LayoutOrder = 17
+noclipButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to NoClip Button
+local noclipButtonCorner = Instance.new("UICorner")
+noclipButtonCorner.CornerRadius = UDim.new(0, 4)
+noclipButtonCorner.Parent = noclipButton
+
+local noclipButtonStroke = Instance.new("UIStroke")
+noclipButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+noclipButtonStroke.Thickness = 1
+noclipButtonStroke.Parent = noclipButton
+
+-- Hover effect for NoClip Button
+noclipButton.MouseEnter:Connect(function()
+    noclipButton.BackgroundColor3 = noclipButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+noclipButton.MouseLeave:Connect(function()
+    noclipButton.BackgroundColor3 = noclipButton.Text == "NoClip Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Create ESP Toggle Button
+local espButton = Instance.new("TextButton")
+espButton.Size = UDim2.new(1, 0, 0, 35)
+espButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+espButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+espButton.Text = "ESP Off"
+espButton.TextSize = 16
+espButton.Font = Enum.Font.Gotham
+espButton.TextScaled = true
+espButton.LayoutOrder = 18
+espButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to ESP Button
+local espButtonCorner = Instance.new("UICorner")
+espButtonCorner.CornerRadius = UDim.new(0, 4)
+espButtonCorner.Parent = espButton
+
+local espButtonStroke = Instance.new("UIStroke")
+espButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+espButtonStroke.Thickness = 1
+espButtonStroke.Parent = espButton
+
+-- Hover effect for ESP Button
+espButton.MouseEnter:Connect(function()
+    espButton.BackgroundColor3 = espButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+espButton.MouseLeave:Connect(function()
+    espButton.BackgroundColor3 = espButton.Text == "ESP Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Create FullBright Toggle Button
+local fullbrightButton = Instance.new("TextButton")
+fullbrightButton.Size = UDim2.new(1, 0, 0, 35)
+fullbrightButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+fullbrightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+fullbrightButton.Text = "FullBright Off"
+fullbrightButton.TextSize = 16
+fullbrightButton.Font = Enum.Font.Gotham
+fullbrightButton.TextScaled = true
+fullbrightButton.LayoutOrder = 19
+fullbrightButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to FullBright Button
+local fullbrightButtonCorner = Instance.new("UICorner")
+fullbrightButtonCorner.CornerRadius = UDim.new(0, 4)
+fullbrightButtonCorner.Parent = fullbrightButton
+
+local fullbrightButtonStroke = Instance.new("UIStroke")
+fullbrightButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+fullbrightButtonStroke.Thickness = 1
+fullbrightButtonStroke.Parent = fullbrightButton
+
+-- Hover effect for FullBright Button
+fullbrightButton.MouseEnter:Connect(function()
+    fullbrightButton.BackgroundColor3 = fullbrightButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+fullbrightButton.MouseLeave:Connect(function()
+    fullbrightButton.BackgroundColor3 = fullbrightButton.Text == "FullBright Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Create Camera Shake Toggle Button
+local cameraShakeButton = Instance.new("TextButton")
+cameraShakeButton.Size = UDim2.new(1, 0, 0, 35)
+cameraShakeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+cameraShakeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+cameraShakeButton.Text = "CamShake Off"
+cameraShakeButton.TextSize = 16
+cameraShakeButton.Font = Enum.Font.Gotham
+cameraShakeButton.TextScaled = true
+cameraShakeButton.LayoutOrder = 20
+cameraShakeButton.Parent = scrollingFrame
+
+-- Add UICorner and UIStroke to Camera Shake Button
+local cameraShakeButtonCorner = Instance.new("UICorner")
+cameraShakeButtonCorner.CornerRadius = UDim.new(0, 4)
+cameraShakeButtonCorner.Parent = cameraShakeButton
+
+local cameraShakeButtonStroke = Instance.new("UIStroke")
+cameraShakeButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+cameraShakeButtonStroke.Thickness = 1
+cameraShakeButtonStroke.Parent = cameraShakeButton
+
+-- Hover effect for Camera Shake Button
+cameraShakeButton.MouseEnter:Connect(function()
+    cameraShakeButton.BackgroundColor3 = cameraShakeButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+cameraShakeButton.MouseLeave:Connect(function()
+    cameraShakeButton.BackgroundColor3 = cameraShakeButton.Text == "CamShake Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Create Toggle Button (outside ScrollingFrame)
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 100, 0, 35)
+toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Text = "Off"
+toggleButton.TextSize = 16
+toggleButton.Font = Enum.Font.Gotham
+toggleButton.TextScaled = true
+toggleButton.Parent = screenGui
+
+-- Add UICorner and UIStroke to Toggle Button
+local toggleButtonCorner = Instance.new("UICorner")
+toggleButtonCorner.CornerRadius = UDim.new(0, 4)
+toggleButtonCorner.Parent = toggleButton
+
+local toggleButtonStroke = Instance.new("UIStroke")
+toggleButtonStroke.Color = Color3.fromRGB(80, 80, 80)
+toggleButtonStroke.Thickness = 1
+toggleButtonStroke.Parent = toggleButton
+
+-- Hover effect for Toggle Button
+toggleButton.MouseEnter:Connect(function()
+    toggleButton.BackgroundColor3 = toggleButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
+end)
+toggleButton.MouseLeave:Connect(function()
+    toggleButton.BackgroundColor3 = toggleButton.Text == "Off" and Color3.fromRGB(30, 30, 30) or Color3.fromRGB(0, 200, 0)
+end)
+
+-- Dynamically update CanvasSize based on content
+local function updateCanvasSize()
+    local totalHeight = 0
+    for _, child in pairs(scrollingFrame:GetChildren()) do
+        if child:IsA("GuiObject") and child.Visible then
+            totalHeight = totalHeight + child.Size.Y.Offset + listLayout.Padding.Offset
+        end
+    end
+    scrollingFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight + 20)
+end
+
+-- Connect to update CanvasSize
+scrollingFrame.ChildAdded:Connect(updateCanvasSize)
+scrollingFrame.ChildRemoved:Connect(updateCanvasSize)
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvasSize)
+updateCanvasSize()
+
+-- TPWalk variables
+local tpwalking = false
+local speedMultiplier = 1
+local tpConnection
+
+-- Fly variables
+local flying = false
+local flySpeed = 50
+local flyConnection
+local flyTpConnection
+local flyControls = {f = 0, b = 0, l = 0, r = 0}
+local lastFlyControls = {f = 0, b = 0, l = 0, r = 0}
+local flyBodyGyro
+local flyBodyVelocity
+
+-- X-Ray variables
+local xrayEnabled = false
+local originalProperties = {}
+
+-- NoClip variables
+local noclipEnabled = false
+
+-- ESP variables
+local espEnabled = false
+local highlights = {}
+local beams = {}
+
+-- FullBright variables
+local fullbrightEnabled = false
+local originalLighting = {
+    Brightness = Lighting.Brightness,
+    Ambient = Lighting.Ambient,
+    GlobalShadows = Lighting.GlobalShadows
+}
+
+-- Camera Shake variables
+local cameraShakeEnabled = false
+local blurEffect = Instance.new("BlurEffect")
+blurEffect.Size = 0
+blurEffect.Parent = Lighting
+local tweenTime = 0.2
+local defaultFOV = Camera.FieldOfView
+
+-- Aimlock variables
+local playerAimlockEnabled = false
+local npcAimlockEnabled = false
+local ignoreWalls = false
+local aimlockConnection
+local target = nil
+local lastTargetSearch = 0
+local searchCooldown = 0.5 -- Seconds between target searches
+local potentialNPCs = {} -- Cache for NPC models
+local aimlockPaused = false -- Flag to pause aimlock after target death
+local FOV_ANGLE = 90 -- Field of view angle in degrees (90 = 45 degrees either side)
+
+-- Function to parse comma-separated input
+local function parseInput(input)
+    local items = {}
+    for item in input:gmatch("[^,]+") do
+        items[#items + 1] = item:match("^%s*(.-)%s*$") -- Trim whitespace
+    end
+    return items
+end
+
+-- Function to get fly speed
+local function getFlySpeed()
+    local speed = tonumber(flySpeedTextBox.Text)
+    if not speed or speed <= 0 or speed > 1000 then
+        flySpeedTextBox.Text = "50"
+        flySpeedLabel.Text = "Fly Speed: 50"
+        return 50
+    end
+    flySpeedLabel.Text = "Fly Speed: " .. speed
+    return speed
+end
+
+-- Update fly speed label when textbox changes
+flySpeedTextBox:GetPropertyChangedSignal("Text"):Connect(function()
+    getFlySpeed()
+end)
+
+-- Function to check if a part is visible
+local function isVisible(fromPart, toPart)
+    if not (fromPart and toPart) then 
+        print("isVisible: Missing parts")
+        return false 
+    end
+    
+    -- Skip raycasting if ignoring walls
+    if ignoreWalls then
+        print("isVisible: Ignoring walls, target is visible")
+        return true
+    end
+    
+    -- Create ignore list with local player's character, all other players' characters, and NPCs
+    local ignoreList = {player.Character}
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player and otherPlayer.Character then
+            table.insert(ignoreList, otherPlayer.Character)
+        end
+    end
+    for _, npc in pairs(potentialNPCs) do
+        if npc.Parent then
+            table.insert(ignoreList, npc)
+        end
+    end
+    
+    local ray = Ray.new(fromPart.Position, (toPart.Position - fromPart.Position).Unit * (toPart.Position - fromPart.Position).Magnitude)
+    local hit, position = workspace:FindPartOnRayWithIgnoreList(ray, ignoreList)
+    
+    -- Only return true if no part is hit or the hit part belongs to the target
+    if hit then
+        if hit:IsDescendantOf(toPart.Parent) then
+            print("isVisible: Hit target part: " .. hit.Name)
+            return true
+        else
+            print("isVisible: Blocked by non-character object: " .. hit.Name)
+            return false
+        end
+    else
+        print("isVisible: No obstruction, clear path to target")
+        return true
+    end
+end
+
+-- Function to check if a position is within the camera's field of view
+local function isInFOV(targetPos)
+    local cameraCFrame = Camera.CFrame
+    local cameraForward = cameraCFrame.LookVector
+    local toTarget = (targetPos - cameraCFrame.Position).Unit
+    local angle = math.deg(math.acos(cameraForward:Dot(toTarget)))
+    if angle <= FOV_ANGLE / 2 then
+        print("isInFOV: Target within FOV, angle: " .. angle)
+        return true
+    else
+        print("isInFOV: Target outside FOV, angle: " .. angle)
+        return false
+    end
+end
+
+-- Function to get aimlock range
+local function getAimlockRange()
+    local range = tonumber(rangeTextBox.Text)
+    if not range or range <= 0 then
+        rangeTextBox.Text = "100"
+        return 100
+    end
+    return range
+end
+
+-- Function to update NPC cache
+local function updateNPCCache()
+    potentialNPCs = {}
+    local npcNames = parseInput(npcTextBox.Text)
+    local lowerNpcNames = {}
+    for _, name in pairs(npcNames) do
+        table.insert(lowerNpcNames, name:lower())
+    end
+
+    for _, model in pairs(workspace:GetDescendants()) do
+        if model:IsA("Model") then
+            local humanoid = model:FindFirstChildWhichIsA("Humanoid")
+            local rootPart = model:FindFirstChild("HumanoidRootPart") or model:FindFirstChild("Head")
+            if humanoid and rootPart and not Players:GetPlayerFromCharacter(model) then
+                if #npcNames == 0 or table.find(lowerNpcNames, model.Name:lower()) then
+                    table.insert(potentialNPCs, model)
+                    print("Cached NPC: " .. model.Name)
+                end
+            end
+        end
+    end
+    print("NPC cache updated. Found " .. #potentialNPCs .. " potential NPCs")
+end
+
+-- Initial NPC cache update
+updateNPCCache()
+
+-- Update NPC cache every 5 seconds
+spawn(function()
+    while true do
+        wait(5)
+        updateNPCCache()
+    end
+end)
+
+-- Function to find closest target (player or NPC) within FOV
+local function findClosestTarget()
+    local closestTarget = nil
+    local closestDistance = math.huge
+    local localChar = player.Character
+    local localHead = localChar and localChar:FindFirstChild("Head")
+    local maxDistance = getAimlockRange()
+    local currentTime = tick()
+
+    if not localHead then
+        print("No local head found")
+        return nil
+    end
+
+    -- Respect search cooldown
+    if currentTime - lastTargetSearch < searchCooldown then
+        print("findClosestTarget: On cooldown, returning current target")
+        return target
+    end
+    lastTargetSearch = currentTime
+
+    local excludedTeams = parseInput(teamTextBox.Text)
+    local npcNames = parseInput(npcTextBox.Text)
+    local lowerNpcNames = {}
+    for _, name in pairs(npcNames) do
+        table.insert(lowerNpcNames, name:lower())
+    end
+
+    -- Check NPCs if enabled
+    if npcAimlockEnabled then
+        for _, model in pairs(potentialNPCs) do
+            if model.Parent then -- Ensure model still exists
+                local humanoid = model:FindFirstChildWhichIsA("Humanoid")
+                local rootPart = model:FindFirstChild("HumanoidRootPart") or model:FindFirstChild("Head")
+                if humanoid and rootPart and humanoid.Health > 0 then
+                    local distance = (localHead.Position - rootPart.Position).Magnitude
+                    if distance <= maxDistance and (#npcNames == 0 or table.find(lowerNpcNames, model.Name:lower())) then
+                        if isVisible(localHead, rootPart) and isInFOV(rootPart.Position) then
+                            if distance < closestDistance then
+                                closestDistance = distance
+                                closestTarget = rootPart
+                                print("Found NPC: " .. model.Name .. " at distance: " .. distance)
+                            end
+                        else
+                            if not isVisible(localHead, rootPart) then
+                                print("NPC not visible: " .. model.Name)
+                            elseif not isInFOV(rootPart.Position) then
+                                print("NPC outside FOV: " .. model.Name)
+                            end
+                        end
+                    else
+                        if distance > maxDistance then
+                            print("NPC too far: " .. model.Name .. " at distance: " .. distance)
+                        end
+                    end
+                else
+                    print("Invalid NPC: " .. model.Name)
+                end
+            end
+        end
+    end
+
+    -- Check players if enabled and no NPC target found (NPCs have priority)
+    if playerAimlockEnabled and not closestTarget then
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= player and otherPlayer.Character then
+                local humanoid = otherPlayer.Character:FindFirstChildWhichIsA("Humanoid")
+                local rootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart") or otherPlayer.Character:FindFirstChild("Head")
+                if humanoid and rootPart and humanoid.Health > 0 then
+                    local teamValid = true
+                    if otherPlayer.Team and #excludedTeams > 0 then
+                        for _, teamName in pairs(excludedTeams) do
+                            if otherPlayer.Team.Name:lower() == teamName:lower() then
+                                teamValid = false
+                                break
+                            end
+                        end
+                    end
+                    local distance = (localHead.Position - rootPart.Position).Magnitude
+                    if teamValid and distance <= maxDistance and isVisible(localHead, rootPart) and isInFOV(rootPart.Position) then
+                        if distance < closestDistance then
+                            closestDistance = distance
+                            closestTarget = rootPart
+                            print("Found Player: " .. otherPlayer.Name .. " at distance: " .. distance)
+                        end
+                    else
+                        if not teamValid then
+                            print("Player team excluded: " .. otherPlayer.Name)
+                        elseif distance > maxDistance then
+                            print("Player too far: " .. otherPlayer.Name .. " at distance: " .. distance)
+                        elseif not isVisible(localHead, rootPart) then
+                            print("Player not visible: " .. otherPlayer.Name)
+                        elseif not isInFOV(rootPart.Position) then
+                            print("Player outside FOV: " .. otherPlayer.Name)
+                        end
+                    end
+                else
+                    print("Invalid player character: " .. otherPlayer.Name)
+                end
+            end
+        end
+    end
+
+    if not closestTarget then
+        print("No valid target found")
+    end
+    return closestTarget
+end
+
+-- Function to toggle ignore walls
+local function toggleIgnoreWalls()
+    ignoreWalls = not ignoreWalls
+    ignoreWallsButton.Text = ignoreWalls and "Ignore Walls On" or "Ignore Walls Off"
+    ignoreWallsButton.BackgroundColor3 = ignoreWalls and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    print("Ignore Walls: " .. (ignoreWalls and "Enabled" or "Disabled"))
+end
+
+-- Function to toggle player aimlock
+local function togglePlayerAimlock()
+    playerAimlockEnabled = not playerAimlockEnabled
+    playerAimlockButton.Text = playerAimlockEnabled and "Player Aimlock On" or "Player Aimlock Off"
+    playerAimlockButton.BackgroundColor3 = playerAimlockEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+
+    if playerAimlockEnabled or npcAimlockEnabled then
+        if aimlockConnection then aimlockConnection:Disconnect() end
+        target = nil -- Reset target
+        aimlockPaused = false -- Reset pause state
+
+        aimlockConnection = RunService.RenderStepped:Connect(function()
+            if not (playerAimlockEnabled or npcAimlockEnabled) or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
+                playerAimlockEnabled = false
+                npcAimlockEnabled = false
+                playerAimlockButton.Text = "Player Aimlock Off"
+                playerAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+                npcAimlockButton.Text = "NPC Aimlock Off"
+                npcAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+                if aimlockConnection then aimlockConnection:Disconnect() end
+                target = nil
+                aimlockPaused = false
+                print("Aimlock disabled: Player invalid")
+                return
+            end
+
+            -- Check if current target is valid
+            local targetValid = false
+            local maxDistance = getAimlockRange()
+            if target and target.Parent then
+                local humanoid = target.Parent:FindFirstChildWhichIsA("Humanoid")
+                local rootPart = target.Parent:FindFirstChild("HumanoidRootPart") or target.Parent:FindFirstChild("Head")
+                if humanoid and rootPart and humanoid.Health > 0 and isVisible(player.Character:FindFirstChild("Head"), rootPart) then
+                    local distance = (player.Character.Head.Position - rootPart.Position).Magnitude
+                    if distance <= maxDistance then
+                        targetValid = true
+                    else
+                        print("Target out of range: " .. distance)
+                        target = nil
+                    end
+                else
+                    if humanoid and humanoid.Health <= 0 then
+                        print("Target dead, clearing target")
+                        target = nil
+                    else
+                        print("Target invalid: missing parts")
+                        target = nil
+                    end
+                end
+            end
+
+            -- Find new target if current one is invalid
+            if not targetValid then
+                target = findClosestTarget()
+                if target then
+                    print("Aimlock active: New target acquired")
+                end
+            end
+
+            -- Lock camera to target
+            if target then
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Position)
+            end
+        end)
+    else
+        if aimlockConnection then aimlockConnection:Disconnect() end
+        target = nil
+        aimlockPaused = false
+        print("Player aimlock disabled")
+    end
+end
+
+-- Function to toggle NPC aimlock
+local function toggleNPCAimlock()
+    npcAimlockEnabled = not npcAimlockEnabled
+    npcAimlockButton.Text = npcAimlockEnabled and "NPC Aimlock On" or "NPC Aimlock Off"
+    npcAimlockButton.BackgroundColor3 = npcAimlockEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+
+    if playerAimlockEnabled or npcAimlockEnabled then
+        if aimlockConnection then aimlockConnection:Disconnect() end
+        target = nil -- Reset target
+        aimlockPaused = false -- Reset pause state
+
+        aimlockConnection = RunService.RenderStepped:Connect(function()
+            if not (playerAimlockEnabled or npcAimlockEnabled) or not player.Character or not player.Character:FindFirstChild("Humanoid") or player.Character.Humanoid.Health <= 0 then
+                playerAimlockEnabled = false
+                npcAimlockEnabled = false
+                playerAimlockButton.Text = "Player Aimlock Off"
+                playerAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+                npcAimlockButton.Text = "NPC Aimlock Off"
+                npcAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+                if aimlockConnection then aimlockConnection:Disconnect() end
+                target = nil
+                aimlockPaused = false
+                print("Aimlock disabled: Player invalid")
+                return
+            end
+
+            -- Check if current target is valid
+            local targetValid = false
+            local maxDistance = getAimlockRange()
+            if target and target.Parent then
+                local humanoid = target.Parent:FindFirstChildWhichIsA("Humanoid")
+                local rootPart = target.Parent:FindFirstChild("HumanoidRootPart") or target.Parent:FindFirstChild("Head")
+                if humanoid and rootPart and humanoid.Health > 0 and isVisible(player.Character:FindFirstChild("Head"), rootPart) then
+                    local distance = (player.Character.Head.Position - rootPart.Position).Magnitude
+                    if distance <= maxDistance then
+                        targetValid = true
+                    else
+                        print("Target out of range: " .. distance)
+                        target = nil
+                    end
+                else
+                    if humanoid and humanoid.Health <= 0 then
+                        print("Target dead, clearing target")
+                        target = nil
+                    else
+                        print("Target invalid: missing parts")
+                        target = nil
+                    end
+                end
+            end
+
+            -- Find new target if current one is invalid
+            if not targetValid then
+                target = findClosestTarget()
+                if target then
+                    print("Aimlock active: New target acquired")
+                end
+            end
+
+            -- Lock camera to target
+            if target then
+                Camera.CFrame = CFrame.new(Camera.CFrame.Position, target.Position)
+            end
+        end)
+    else
+        if aimlockConnection then aimlockConnection:Disconnect() end
+        target = nil
+        aimlockPaused = false
+        print("NPC aimlock disabled")
+    end
+end
+
+-- TPWalk function
+local function startTPWalk()
+    if tpwalking then
+        tpwalking = false
+        applyButton.Text = "Enable TPWalk"
+        applyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        if tpConnection then
+            tpConnection:Disconnect()
+        end
+        return
+    end
+
+    local multiplier = tonumber(speedTextBox.Text)
+    if not multiplier then
+        warn("Please enter a valid number for TPWalk speed")
+        return
+    end
+
+    speedMultiplier = multiplier
+    tpwalking = true
+    applyButton.Text = "Disable TPWalk"
+    applyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
+
+    if character and humanoid and humanoid.Parent then
+        tpConnection = RunService.Heartbeat:Connect(function(delta)
+            if not tpwalking or not character or not humanoid or not humanoid.Parent then
+                if tpConnection then
+                    tpConnection:Disconnect()
+                end
+                return
+            end
+
+            if humanoid.MoveDirection.Magnitude > 0 then
+                local tpwalkSpeed = humanoid.WalkSpeed * speedMultiplier
+                character:TranslateBy(humanoid.MoveDirection * delta * tpwalkSpeed)
+            end
+        end)
+    end
+end
+
+-- Fly function
+local function toggleFly()
+    flying = not flying
+    flyButton.Text = flying and "Fly On" or "Fly Off"
+    flyButton.BackgroundColor3 = flying and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
+    if not character or not humanoid then
+        flying = false
+        flyButton.Text = "Fly Off"
+        flyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        return
+    end
+
+    if flying then
+        -- Disable humanoid states for flying
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, false)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, false)
+        humanoid:ChangeState(Enum.HumanoidStateType.Swimming)
+
+        local rootPart = (humanoid.RigType == Enum.HumanoidRigType.R6 and character:FindFirstChild("Torso")) or character:FindFirstChild("UpperTorso")
+        if not rootPart then return end
+
+        flyBodyGyro = Instance.new("BodyGyro", rootPart)
+        flyBodyGyro.P = 9e4
+        flyBodyGyro.MaxTorque = Vector3.new(9e9, 9e9, 9e9)
+        flyBodyGyro.CFrame = rootPart.CFrame
+
+        flyBodyVelocity = Instance.new("BodyVelocity", rootPart)
+        flyBodyVelocity.Velocity = Vector3.new(0, 0.1, 0)
+        flyBodyVelocity.MaxForce = Vector3.new(9e9, 9e9, 9e9)
+
+        humanoid.PlatformStand = true
+        character.Animate.Disabled = true
+        for _, track in pairs(humanoid:GetPlayingAnimationTracks()) do
+            track:AdjustSpeed(0)
+        end
+
+        -- Teleportation movement for flying
+        if character and humanoid and humanoid.Parent then
+            flyTpConnection = RunService.Heartbeat:Connect(function(delta)
+                if not flying or not character or not humanoid or not humanoid.Parent then
+                    if flyTpConnection then
+                        flyTpConnection:Disconnect()
+                    end
+                    return
+                end
+                if humanoid.MoveDirection.Magnitude > 0 then
+                    local flyTpSpeed = humanoid.WalkSpeed * (getFlySpeed() / 50) -- Scale with flySpeed
+                    character:TranslateBy(humanoid.MoveDirection * delta * flyTpSpeed)
+                end
+            end)
+        end
+
+        flyConnection = RunService.RenderStepped:Connect(function()
+            if not flying or not character or not humanoid or humanoid.Health <= 0 then
+                if flyConnection then flyConnection:Disconnect() end
+                if flyTpConnection then flyTpConnection:Disconnect() end
+                if flyBodyGyro then flyBodyGyro:Destroy() end
+                if flyBodyVelocity then flyBodyVelocity:Destroy() end
+                if humanoid then
+                    humanoid.PlatformStand = false
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, true)
+                    humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
+                    humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+                end
+                character.Animate.Disabled = false
+                flying = false
+                flyButton.Text = "Fly Off"
+                flyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+                return
+            end
+
+            local currentSpeed = 0
+            flySpeed = getFlySpeed()
+
+            if flyControls.l + flyControls.r ~= 0 or flyControls.f + flyControls.b ~= 0 then
+                currentSpeed = currentSpeed + 0.5 + (currentSpeed / flySpeed)
+                if currentSpeed > flySpeed then
+                    currentSpeed = flySpeed
+                end
+            elseif not (flyControls.l + flyControls.r ~= 0 or flyControls.f + flyControls.b ~= 0) and currentSpeed ~= 0 then
+                currentSpeed = currentSpeed - 1
+                if currentSpeed < 0 then
+                    currentSpeed = 0
+                end
+            end
+
+            if flyControls.l + flyControls.r ~= 0 or flyControls.f + flyControls.b ~= 0 then
+                flyBodyVelocity.Velocity = ((Camera.CoordinateFrame.lookVector * (flyControls.f + flyControls.b)) +
+                    ((Camera.CoordinateFrame * CFrame.new(flyControls.l + flyControls.r, (flyControls.f + flyControls.b) * 0.2, 0).p) - Camera.CoordinateFrame.p)) * currentSpeed
+                lastFlyControls = {f = flyControls.f, b = flyControls.b, l = flyControls.l, r = flyControls.r}
+            elseif flyControls.l + flyControls.r == 0 and flyControls.f + flyControls.b == 0 and currentSpeed ~= 0 then
+                flyBodyVelocity.Velocity = ((Camera.CoordinateFrame.lookVector * (lastFlyControls.f + lastFlyControls.b)) +
+                    ((Camera.CoordinateFrame * CFrame.new(lastFlyControls.l + lastFlyControls.r, (lastFlyControls.f + lastFlyControls.b) * 0.2, 0).p) - Camera.CoordinateFrame.p)) * currentSpeed
+            else
+                flyBodyVelocity.Velocity = Vector3.new(0, 0.1, 0)
+            end
+
+            flyBodyGyro.CFrame = Camera.CoordinateFrame * CFrame.Angles(-math.rad((flyControls.f + flyControls.b) * 50 * currentSpeed / flySpeed), 0, 0)
+        end)
+    else
+        if flyConnection then flyConnection:Disconnect() end
+        if flyTpConnection then flyTpConnection:Disconnect() end
+        if flyBodyGyro then flyBodyGyro:Destroy() end
+        if flyBodyVelocity then flyBodyVelocity:Destroy() end
+        humanoid.PlatformStand = false
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, true)
+        humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
+        humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+        character.Animate.Disabled = false
+    end
+end
+
+-- Fly control inputs
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    if input.KeyCode == Enum.KeyCode.W then
+        flyControls.f = 1
+    elseif input.KeyCode == Enum.KeyCode.S then
+        flyControls.b = -1
+    elseif input.KeyCode == Enum.KeyCode.A then
+        flyControls.l = -1
+    elseif input.KeyCode == Enum.KeyCode.D then
+        flyControls.r = 1
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessedEvent)
+    if gameProcessedEvent then return end
+    if input.KeyCode == Enum.KeyCode.W then
+        flyControls.f = 0
+    elseif input.KeyCode == Enum.KeyCode.S then
+        flyControls.b = 0
+    elseif input.KeyCode == Enum.KeyCode.A then
+        flyControls.l = 0
+    elseif input.KeyCode == Enum.KeyCode.D then
+        flyControls.r = 0
+    end
+end)
+
+-- X-Ray function
+local function toggleXRay()
+    xrayEnabled = not xrayEnabled
+    xrayButton.Text = xrayEnabled and "X-Ray On" or "X-Ray Off"
+    xrayButton.BackgroundColor3 = xrayEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+
+    if xrayEnabled then
+        for _, part in pairs(workspace:GetDescendants()) do
+            if part:IsA("BasePart") and not part.Parent:FindFirstChildWhichIsA("Humanoid") then
+                originalProperties[part] = {
+                    Transparency = part.Transparency,
+                    LocalTransparencyModifier = part.LocalTransparencyModifier
+                }
+                part.LocalTransparencyModifier = 0.5
+            end
+        end
+    else
+        for part, properties in pairs(originalProperties) do
+            if part and part.Parent then
+                part.LocalTransparencyModifier = properties.LocalTransparencyModifier
+                part.Transparency = properties.Transparency
+            end
+        end
+        originalProperties = {}
+    end
+end
+
+-- NoClip function
+local function toggleNoClip()
+    noclipEnabled = not noclipEnabled
+    noclipButton.Text = noclipEnabled and "NoClip On" or "NoClip Off"
+    noclipButton.BackgroundColor3 = noclipEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+
+    local character = player.Character
+    if character then
+        for _, v in pairs(character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = not noclipEnabled
+            end
+        end
+    end
+end
+
+-- ESP and Tracers function
+local function toggleESP()
+    espEnabled = not espEnabled
+    espButton.Text = espEnabled and "ESP On" or "ESP Off"
+    espButton.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+
+    local function updateESP()
+        for _, highlight in pairs(highlights) do
+            if highlight then highlight:Destroy() end
+        end
+        for _, beam in pairs(beams) do
+            if beam then beam:Destroy() end
+        end
+        highlights = {}
+        beams = {}
+
+        if not espEnabled then return end
+
+        local localChar = player.Character
+        if not localChar or not localChar:FindFirstChild("HumanoidRootPart") then
+            return
+        end
+
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= player then
+                local playerChar = otherPlayer.Character
+                if playerChar and playerChar:FindFirstChild("HumanoidRootPart") then
+                    local espColor = Color3.fromRGB(255, 0, 0)
+                    if #Teams:GetTeams() > 0 and otherPlayer.Team then
+                        espColor = otherPlayer.Team.TeamColor.Color
+                    end
+
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "ESPHighlight"
+                    highlight.FillColor = espColor
+                    highlight.OutlineColor = espColor
+                    highlight.Parent = playerChar
+                    highlights[otherPlayer] = highlight
+
+                    local attachment0 = Instance.new("Attachment")
+                    attachment0.Parent = localChar:FindFirstChild("HumanoidRootPart")
+                    local attachment1 = Instance.new("Attachment")
+                    attachment1.Parent = playerChar:FindFirstChild("HumanoidRootPart")
+
+                    local beam = Instance.new("Beam")
+                    beam.Name = "ESPBeam"
+                    beam.Attachment0 = attachment0
+                    beam.Attachment1 = attachment1
+                    beam.Color = ColorSequence.new(espColor)
+                    beam.FaceCamera = true
+                    beam.Width0 = 0.15
+                    beam.Width1 = 0.15
+                    beam.Parent = playerChar
+                    beams[otherPlayer] = beam
+                end
+            end
+        end
+    end
+
+    updateESP()
+
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            otherPlayer.CharacterAdded:Connect(function()
+                if espEnabled then
+                    wait(0.1)
+                    updateESP()
+                end
+            end)
+            otherPlayer.CharacterRemoving:Connect(function()
+                if highlights[otherPlayer] then
+                    highlights[otherPlayer]:Destroy()
+                    highlights[otherPlayer] = nil
+                end
+                if beams[otherPlayer] then
+                    beams[otherPlayer]:Destroy()
+                    beams[otherPlayer] = nil
+                end
+            end)
+        end
+    end
+end
+
+-- FullBright function
+local function toggleFullBright()
+    fullbrightEnabled = not fullbrightEnabled
+    fullbrightButton.Text = fullbrightEnabled and "FullBright On" or "FullBright Off"
+    fullbrightButton.BackgroundColor3 = fullbrightEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+
+    if fullbrightEnabled then
+        Lighting.Brightness = 1
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+        Lighting.GlobalShadows = false
+    else
+        Lighting.Brightness = originalLighting.Brightness
+        Lighting.Ambient = originalLighting.Ambient
+        Lighting.GlobalShadows = originalLighting.GlobalShadows
+    end
+end
+
+-- Camera Shake function
+local function toggleCameraShake()
+    cameraShakeEnabled = not cameraShakeEnabled
+    cameraShakeButton.Text = cameraShakeEnabled and "CamShake On" or "CamShake Off"
+    cameraShakeButton.BackgroundColor3 = cameraShakeEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+
+    if cameraShakeEnabled then
+        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = 60}):Play()
+        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 10}):Play()
+    else
+        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = defaultFOV}):Play()
+        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 0}):Play()
+    end
+end
+
+-- Function to reapply X-Ray after respawn
+local function reapplyXRay(character)
+    if xrayEnabled then
+        for _, part in pairs(workspace:GetDescendants()) do
+            if part:IsA("BasePart") and not part.Parent:FindFirstChildWhichIsA("Humanoid") then
+                if not originalProperties[part] then
+                    originalProperties[part] = {
+                        Transparency = part.Transparency,
+                        LocalTransparencyModifier = part.LocalTransparencyModifier
+                    }
+                end
+                part.LocalTransparencyModifier = 0.5
+            end
+        end
+    end
+end
+
+-- Function to reapply NoClip after respawn
+local function reapplyNoClip(character)
+    if noclipEnabled then
+        for _, v in pairs(character:GetDescendants()) do
+            if v:IsA("BasePart") then
+                v.CanCollide = false
+            end
+        end
+    end
+end
+
+-- Function to reapply ESP after respawn
+local function reapplyESP()
+    if espEnabled then
+        toggleESP()
+    end
+end
+
+-- Function to reapply FullBright after respawn
+local function reapplyFullBright()
+    if fullbrightEnabled then
+        Lighting.Brightness = 1
+        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
+        Lighting.GlobalShadows = false
+    end
+end
+
+-- Function to restart TPWalk after respawn
+local function restartTPWalk(character)
+    if tpwalking then
+        local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
+        if character and humanoid and humanoid.Parent then
+            tpConnection = RunService.Heartbeat:Connect(function(delta)
+                if not tpwalking or not character or not humanoid or not humanoid.Parent then
+                    if tpConnection then
+                        tpConnection:Disconnect()
+                    end
+                    return
+                end
+
+                if humanoid.MoveDirection.Magnitude > 0 then
+                    local tpwalkSpeed = humanoid.WalkSpeed * speedMultiplier
+                    character:TranslateBy(humanoid.MoveDirection * delta * tpwalkSpeed)
+                end
+            end)
+        end
+    end
+end
+
+-- Function to reapply Fly after respawn
+local function reapplyFly(character)
+    if flying then
+        toggleFly() -- Turn off first to clean up
+        toggleFly() -- Turn back on to reapply
+    end
+end
+
+-- Function to reapply Camera Shake after respawn
+local function reapplyCameraShake()
+    if cameraShakeEnabled then
+        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = 60}):Play()
+        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 10}):Play()
+    else
+        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = defaultFOV}):Play()
+        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 0}):Play()
+    end
+end
+
+-- Function to reapply Ignore Walls after respawn
+local function reapplyIgnoreWalls()
+    ignoreWallsButton.Text = ignoreWalls and "Ignore Walls On" or "Ignore Walls Off"
+    ignoreWallsButton.BackgroundColor3 = ignoreWalls and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+end
+
+-- Toggle GUI visibility
+local function toggleGUI()
+    scrollingFrame.Visible = not scrollingFrame.Visible
+    toggleButton.Text = scrollingFrame.Visible and "On" or "Off"
+    toggleButton.BackgroundColor3 = scrollingFrame.Visible and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(30, 30, 30)
+end
+
+-- Connect button events
+applyButton.MouseButton1Click:Connect(startTPWalk)
+flyButton.MouseButton1Click:Connect(toggleFly)
+xrayButton.MouseButton1Click:Connect(toggleXRay)
+noclipButton.MouseButton1Click:Connect(toggleNoClip)
+espButton.MouseButton1Click:Connect(toggleESP)
+fullbrightButton.MouseButton1Click:Connect(toggleFullBright)
+cameraShakeButton.MouseButton1Click:Connect(toggleCameraShake)
+playerAimlockButton.MouseButton1Click:Connect(togglePlayerAimlock)
+npcAimlockButton.MouseButton1Click:Connect(toggleNPCAimlock)
+ignoreWallsButton.MouseButton1Click:Connect(toggleIgnoreWalls)
+toggleButton.MouseButton1Click:Connect(toggleGUI)
+
+-- Keybind to toggle GUI (T)
+UserInputService.InputBegan:Connect(function(input, gameProcessedEvent)
+    if not gameProcessedEvent and input.KeyCode == Enum.KeyCode.T then
+        toggleGUI()
+    end
+end)
+
+-- Handle respawn to maintain states
+player.CharacterAdded:Connect(function(character)
+    local humanoid = character:WaitForChild("Humanoid")
+    humanoid.Died:Connect(function()
+        if playerAimlockEnabled or npcAimlockEnabled then
+            playerAimlockEnabled = false
+            npcAimlockEnabled = false
+            playerAimlockButton.Text = "Player Aimlock Off"
+            playerAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            npcAimlockButton.Text = "NPC Aimlock Off"
+            npcAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            if aimlockConnection then aimlockConnection:Disconnect() end
+            target = nil
+            aimlockPaused = false
+            print("Aimlock disabled: Player died")
+        end
+        if flying then
+            flying = false
+            flyButton.Text = "Fly Off"
+            flyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            if flyConnection then flyConnection:Disconnect() end
+            if flyTpConnection then flyTpConnection:Disconnect() end
+            if flyBodyGyro then flyBodyGyro:Destroy() end
+            if flyBodyVelocity then flyBodyVelocity:Destroy() end
+            humanoid.PlatformStand = false
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Climbing, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Flying, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Freefall, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.GettingUp, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Jumping, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Landed, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.PlatformStanding, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Running, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.RunningNoPhysics, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.StrafingNoPhysics, true)
+            humanoid:SetStateEnabled(Enum.HumanoidStateType.Swimming, true)
+            humanoid:ChangeState(Enum.HumanoidStateType.RunningNoPhysics)
+            character.Animate.Disabled = false
+        end
+        if tpwalking then
+            tpwalking = false
+            applyButton.Text = "Enable TPWalk"
+            applyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+            if tpConnection then
+                tpConnection:Disconnect()
+            end
+        end
+    end)
+
+    wait(0.1) -- Ensure character is fully loaded
+    reapplyXRay(character)
+    reapplyNoClip(character)
+    reapplyESP()
+    reapplyFullBright()
+    restartTPWalk(character)
+    reapplyFly(character)
+    reapplyCameraShake()
+    reapplyIgnoreWalls()
+end)
