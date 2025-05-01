@@ -4,7 +4,6 @@ local sound = Instance.new("Sound", game.Workspace)
     sound:Play()
 
 local Plr = game:GetService("Players")
-local Plr = game:GetService("Players")
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "GIVER KILLS";
     Text = "Giver Kills made by XclassicgRBLX";
