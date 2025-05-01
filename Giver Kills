@@ -1,0 +1,87 @@
+local sound = Instance.new("Sound", game.Workspace)
+    sound.SoundId = "rbxassetid://103215672097028"
+    sound.Volume = 2
+    sound:Play()
+
+local Plr = game:GetService("Players")
+local Plr = game:GetService("Players")
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "GIVER KILLS";
+    Text = "Giver Kills made by XclassicgRBLX";
+    Icon = "rbxthumb://type=Asset&id=102750604337077&w=150&h=150";
+    Duration = 3
+})
+
+local SG = Instance.new("ScreenGui")
+SG.Name = "Giver"
+SG.Parent = game.CoreGui
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 300, 0, 200)
+frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.BorderSizePixel = 0
+frame.Active = true 
+frame.Draggable = true
+frame.Parent = SG
+
+local username = Instance.new("TextBox")
+username.Size = UDim2.new(0, 280, 0, 40)
+username.Position = UDim2.new(0, 10, 0, 10)
+username.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+username.TextColor3 = Color3.fromRGB(0, 0, 0)
+username.PlaceholderText = "Enter Username to give kills"
+username.Text = ""
+username.Parent = frame
+
+local amount = Instance.new("TextBox")
+amount.Size = UDim2.new(0, 280, 0, 40)
+amount.Position = UDim2.new(0, 10, 0, 60)
+amount.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+amount.TextColor3 = Color3.fromRGB(0, 0, 0)
+amount.PlaceholderText = "Enter Amount to give urself kills"
+amount.Text = ""
+amount.Parent = frame
+
+local GiveMe = Instance.new("TextButton")
+GiveMe.Size = UDim2.new(0, 280, 0, 40)
+GiveMe.Position = UDim2.new(0, 10, 0, 110)
+GiveMe.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+GiveMe.TextColor3 = Color3.fromRGB(255, 255, 255)
+GiveMe.Text = "GIVE ME NOW!!!"
+GiveMe.Parent = frame
+
+local u = Instance.new("TextLabel")
+u.Size = UDim2.new(0, 280, 0, 40)
+u.Position = UDim2.new(0, 10, 0, 160)
+u.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+u.TextColor3 = Color3.fromRGB(255, 255, 255)
+u.BackgroundTransparency = 1
+u.Text = "GIVER KILLS MADE BY XCLASSICGRBLX (PLSJOINMEPOOR)"
+u.Parent = frame
+
+local uiCorner = Instance.new("UICorner")
+uiCorner.CornerRadius = UDim.new(0, 8)
+uiCorner.Parent = frame
+uiCorner:Clone().Parent = username
+uiCorner:Clone().Parent = amount
+uiCorner:Clone().Parent = GiveMe
+
+GiveMe.MouseButton1Click:Connect(function()
+local sound = Instance.new("Sound", game.Workspace)
+    sound.SoundId = "rbxassetid://96377507894391"
+    sound.Volume = 2
+    sound:Play()
+    
+    local username = username.Text
+    local amount = tonumber(amount.Text)
+    
+    if username ~= "" and amount then
+        local args = {username, amount}
+        game:GetService("ReplicatedStorage"):WaitForChild("GiveKillsEvent"):FireServer(unpack(args))
+    else
+        GiveMe.Text = "Bruh did u put username or amount? if not pls put"
+        task.wait(1.5)
+        GiveMe.Text = "GIVE ME NOW!!!"
+    end
+end)
