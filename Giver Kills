@@ -163,7 +163,6 @@ GiveMe.MouseButton1Click:Connect(function()
         game:GetService("ReplicatedStorage"):WaitForChild("GiveKillsEvent"):FireServer(unpack(args))
     else
         GiveMe.Text = "Bruh did u put username or amount? if not pls put"
-        task.wait( Anglo-Saxon
         task.wait(1.5)
         GiveMe.Text = "GIVE ME NOW!!!"
     end
