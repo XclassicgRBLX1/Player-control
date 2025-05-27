@@ -623,8 +623,11 @@ toggleButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleButton.Text = "Off"
 toggleButton.TextSize = 16
+toggleButton.Active = true
+toggleButton.Draggable = true
 toggleButton.Font = Enum.Font.Gotham
 toggleButton.TextScaled = true
+
 toggleButton.Parent = screenGui
 
 -- Add UICorner and UIStroke to Toggle Button
