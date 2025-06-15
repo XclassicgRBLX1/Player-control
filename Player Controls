@@ -1,10 +1,8 @@
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer or Players.PlayerAdded:Wait()
+local player = game.Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local Teams = game:GetService("Teams")
-local Lighting = game:GetService("Lighting")
 local Camera = workspace.CurrentCamera
 local TweenService = game:GetService("TweenService")
 
@@ -16,9 +14,9 @@ screenGui.ResetOnSpawn = false
 
 -- Create ScrollingFrame
 local scrollingFrame = Instance.new("ScrollingFrame")
-scrollingFrame.Size = UDim2.new(0, 250, 0, 550)
-scrollingFrame.Position = UDim2.new(0.5, -125, 0.5, -275)
-scrollingFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+scrollingFrame.Size = UDim2.new(0, 250, 0, 450)
+scrollingFrame.Position = UDim2.new(0.5, -125, 0.5, -225)
+scrollingFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 scrollingFrame.BackgroundTransparency = 0.1
 scrollingFrame.BorderSizePixel = 0
 scrollingFrame.ScrollBarThickness = 6
@@ -35,9 +33,17 @@ frameCorner.Parent = scrollingFrame
 -- Add UIStroke to ScrollingFrame
 local frameStroke = Instance.new("UIStroke")
 frameStroke.Thickness = 2
-frameStroke.Color = Color3.fromRGB(100, 100, 255)
+frameStroke.Color = Color3.fromRGB(80, 80, 255)
 frameStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 frameStroke.Parent = scrollingFrame
+
+-- Add UIGradient to ScrollingFrame
+local frameGradient = Instance.new("UIGradient")
+frameGradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(25, 25, 25)),
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(40, 40, 40))
+})
+frameGradient.Parent = scrollingFrame
 
 -- Add UIListLayout to ScrollingFrame
 local listLayout = Instance.new("UIListLayout")
@@ -58,45 +64,33 @@ local titleLabel = Instance.new("TextLabel")
 titleLabel.Size = UDim2.new(1, 0, 0, 40)
 titleLabel.BackgroundTransparency = 1
 titleLabel.Text = "Player Control Panel"
-titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextColor3 = Color3.fromRGB(200, 200, 255)
 titleLabel.TextSize = 22
 titleLabel.Font = Enum.Font.GothamBold
 titleLabel.TextScaled = true
 titleLabel.LayoutOrder = 0
 titleLabel.Parent = scrollingFrame
 
--- Create TPWalk Section Label
-local tpWalkSectionLabel = Instance.new("TextLabel")
-tpWalkSectionLabel.Size = UDim2.new(1, 0, 0, 25)
-tpWalkSectionLabel.BackgroundTransparency = 1
-tpWalkSectionLabel.Text = "TPWalk Settings"
-tpWalkSectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-tpWalkSectionLabel.TextSize = 18
-tpWalkSectionLabel.Font = Enum.Font.GothamSemibold
-tpWalkSectionLabel.TextScaled = true
-tpWalkSectionLabel.LayoutOrder = 1
-tpWalkSectionLabel.Parent = scrollingFrame
-
 -- Create Separator for TPWalk Section
 local tpWalkSeparator = Instance.new("Frame")
 tpWalkSeparator.Size = UDim2.new(1, 0, 0, 2)
-tpWalkSeparator.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+tpWalkSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 255)
 tpWalkSeparator.BorderSizePixel = 0
-tpWalkSeparator.LayoutOrder = 2
+tpWalkSeparator.LayoutOrder = 1
 tpWalkSeparator.Parent = scrollingFrame
 
--- Create TextBox for speed multiplier (TPWalk)
+-- Create TextBox for TPWalk speed multiplier
 local speedTextBox = Instance.new("TextBox")
 speedTextBox.Size = UDim2.new(1, 0, 0, 40)
-speedTextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+speedTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 speedTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-speedTextBox.PlaceholderText = "Enter TPWalk speed multiplier"
+speedTextBox.PlaceholderText = "TPWalk Speed Multiplier"
 speedTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
 speedTextBox.Text = "1"
 speedTextBox.TextSize = 16
 speedTextBox.Font = Enum.Font.Gotham
 speedTextBox.TextScaled = true
-speedTextBox.LayoutOrder = 3
+speedTextBox.LayoutOrder = 2
 speedTextBox.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to TPWalk Speed TextBox
@@ -105,72 +99,60 @@ speedTextBoxCorner.CornerRadius = UDim.new(0, 6)
 speedTextBoxCorner.Parent = speedTextBox
 
 local speedTextBoxStroke = Instance.new("UIStroke")
-speedTextBoxStroke.Color = Color3.fromRGB(100, 100, 100)
+speedTextBoxStroke.Color = Color3.fromRGB(80, 80, 255)
 speedTextBoxStroke.Thickness = 1
 speedTextBoxStroke.Parent = speedTextBox
 
--- Create Apply Button (to toggle TPWalk)
-local applyButton = Instance.new("TextButton")
-applyButton.Size = UDim2.new(1, 0, 0, 40)
-applyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-applyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-applyButton.Text = "Enable TPWalk"
-applyButton.TextSize = 16
-applyButton.Font = Enum.Font.GothamSemibold
-applyButton.TextScaled = true
-applyButton.LayoutOrder = 4
-applyButton.Parent = scrollingFrame
+-- Create TPWalk Toggle Button
+local tpWalkButton = Instance.new("TextButton")
+tpWalkButton.Size = UDim2.new(1, 0, 0, 40)
+tpWalkButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+tpWalkButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+tpWalkButton.Text = "Enable TPWalk"
+tpWalkButton.TextSize = 16
+tpWalkButton.Font = Enum.Font.Gotham
+tpWalkButton.TextScaled = true
+tpWalkButton.LayoutOrder = 3
+tpWalkButton.Parent = scrollingFrame
 
--- Add UICorner and UIStroke to Apply Button
-local applyButtonCorner = Instance.new("UICorner")
-applyButtonCorner.CornerRadius = UDim.new(0, 6)
-applyButtonCorner.Parent = applyButton
+-- Add UICorner and UIStroke to TPWalk Button
+local tpWalkButtonCorner = Instance.new("UICorner")
+tpWalkButtonCorner.CornerRadius = UDim.new(0, 6)
+tpWalkButtonCorner.Parent = tpWalkButton
 
-local applyButtonStroke = Instance.new("UIStroke")
-applyButtonStroke.Color = Color3.fromRGB(100, 100, 100)
-applyButtonStroke.Thickness = 1
-applyButtonStroke.Parent = applyButton
+local tpWalkButtonStroke = Instance.new("UIStroke")
+tpWalkButtonStroke.Color = Color3.fromRGB(80, 80, 255)
+tpWalkButtonStroke.Thickness = 1
+tpWalkButtonStroke.Parent = tpWalkButton
 
--- Hover effect for Apply Button
-applyButton.MouseEnter:Connect(function()
-    applyButton.BackgroundColor3 = applyButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
+-- Hover effect for TPWalk Button
+tpWalkButton.MouseEnter:Connect(function()
+    tpWalkButton.BackgroundColor3 = tpWalkButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
 end)
-applyButton.MouseLeave:Connect(function()
-    applyButton.BackgroundColor3 = applyButton.Text == "Enable TPWalk" and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+tpWalkButton.MouseLeave:Connect(function()
+    tpWalkButton.BackgroundColor3 = tpWalkButton.Text == "Enable TPWalk" and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
 end)
-
--- Create Aimlock Section Label
-local aimlockSectionLabel = Instance.new("TextLabel")
-aimlockSectionLabel.Size = UDim2.new(1, 0, 0, 25)
-aimlockSectionLabel.BackgroundTransparency = 1
-aimlockSectionLabel.Text = "Aimlock Settings"
-aimlockSectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-aimlockSectionLabel.TextSize = 18
-aimlockSectionLabel.Font = Enum.Font.GothamSemibold
-aimlockSectionLabel.TextScaled = true
-aimlockSectionLabel.LayoutOrder = 5
-aimlockSectionLabel.Parent = scrollingFrame
 
 -- Create Separator for Aimlock Section
 local aimlockSeparator = Instance.new("Frame")
 aimlockSeparator.Size = UDim2.new(1, 0, 0, 2)
-aimlockSeparator.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+aimlockSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 255)
 aimlockSeparator.BorderSizePixel = 0
-aimlockSeparator.LayoutOrder = 6
+aimlockSeparator.LayoutOrder = 4
 aimlockSeparator.Parent = scrollingFrame
 
 -- Create TextBox for Aimlock Range
 local rangeTextBox = Instance.new("TextBox")
 rangeTextBox.Size = UDim2.new(1, 0, 0, 40)
-rangeTextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+rangeTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 rangeTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-rangeTextBox.PlaceholderText = "Enter aimlock range (studs)"
+rangeTextBox.PlaceholderText = "Aimlock Range (studs)"
 rangeTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
 rangeTextBox.Text = "100"
 rangeTextBox.TextSize = 16
 rangeTextBox.Font = Enum.Font.Gotham
 rangeTextBox.TextScaled = true
-rangeTextBox.LayoutOrder = 7
+rangeTextBox.LayoutOrder = 5
 rangeTextBox.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to Range TextBox
@@ -179,22 +161,22 @@ rangeTextBoxCorner.CornerRadius = UDim.new(0, 6)
 rangeTextBoxCorner.Parent = rangeTextBox
 
 local rangeTextBoxStroke = Instance.new("UIStroke")
-rangeTextBoxStroke.Color = Color3.fromRGB(100, 100, 100)
+rangeTextBoxStroke.Color = Color3.fromRGB(80, 80, 255)
 rangeTextBoxStroke.Thickness = 1
 rangeTextBoxStroke.Parent = rangeTextBox
 
 -- Create TextBox for NPC names
 local npcTextBox = Instance.new("TextBox")
 npcTextBox.Size = UDim2.new(1, 0, 0, 40)
-npcTextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+npcTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 npcTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-npcTextBox.PlaceholderText = "Enter NPC names (comma-separated)"
+npcTextBox.PlaceholderText = "NPC Names (comma-separated)"
 npcTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
 npcTextBox.Text = ""
 npcTextBox.TextSize = 16
 npcTextBox.Font = Enum.Font.Gotham
 npcTextBox.TextScaled = true
-npcTextBox.LayoutOrder = 8
+npcTextBox.LayoutOrder = 6
 npcTextBox.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to NPC TextBox
@@ -203,23 +185,28 @@ npcTextBoxCorner.CornerRadius = UDim.new(0, 6)
 npcTextBoxCorner.Parent = npcTextBox
 
 local npcTextBoxStroke = Instance.new("UIStroke")
-npcTextBoxStroke.Color = Color3.fromRGB(100, 100, 100)
+npcTextBoxStroke.Color = Color3.fromRGB(80, 80, 255)
 npcTextBoxStroke.Thickness = 1
 npcTextBoxStroke.Parent = npcTextBox
 
--- Create TextBox for Team name
+-- Create TextBox for Team names
 local teamTextBox = Instance.new("TextBox")
 teamTextBox.Size = UDim2.new(1, 0, 0, 40)
-teamTextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+teamTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 teamTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-teamTextBox.PlaceholderText = "Enter team name to exclude"
+teamTextBox.PlaceholderText = "Teams to Exclude (comma-separated)"
 teamTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-teamTextBox.Text = ""
+teamTextBox.Text = player.Team and player.Team.Name or ""
 teamTextBox.TextSize = 16
 teamTextBox.Font = Enum.Font.Gotham
 teamTextBox.TextScaled = true
-teamTextBox.LayoutOrder = 9
+teamTextBox.LayoutOrder = 7
 teamTextBox.Parent = scrollingFrame
+
+-- Update teamTextBox when player's team changes
+player:GetPropertyChangedSignal("Team"):Connect(function()
+    teamTextBox.Text = player.Team and player.Team.Name or ""
+end)
 
 -- Add UICorner and UIStroke to Team TextBox
 local teamTextBoxCorner = Instance.new("UICorner")
@@ -227,7 +214,7 @@ teamTextBoxCorner.CornerRadius = UDim.new(0, 6)
 teamTextBoxCorner.Parent = teamTextBox
 
 local teamTextBoxStroke = Instance.new("UIStroke")
-teamTextBoxStroke.Color = Color3.fromRGB(100, 100, 100)
+teamTextBoxStroke.Color = Color3.fromRGB(80, 80, 255)
 teamTextBoxStroke.Thickness = 1
 teamTextBoxStroke.Parent = teamTextBox
 
@@ -238,9 +225,9 @@ playerAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 playerAimlockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 playerAimlockButton.Text = "Player Aimlock Off"
 playerAimlockButton.TextSize = 16
-playerAimlockButton.Font = Enum.Font.GothamSemibold
+playerAimlockButton.Font = Enum.Font.Gotham
 playerAimlockButton.TextScaled = true
-playerAimlockButton.LayoutOrder = 10
+playerAimlockButton.LayoutOrder = 8
 playerAimlockButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to Player Aimlock Button
@@ -249,13 +236,13 @@ playerAimlockButtonCorner.CornerRadius = UDim.new(0, 6)
 playerAimlockButtonCorner.Parent = playerAimlockButton
 
 local playerAimlockButtonStroke = Instance.new("UIStroke")
-playerAimlockButtonStroke.Color = Color3.fromRGB(100, 100, 100)
+playerAimlockButtonStroke.Color = Color3.fromRGB(80, 80, 255)
 playerAimlockButtonStroke.Thickness = 1
 playerAimlockButtonStroke.Parent = playerAimlockButton
 
 -- Hover effect for Player Aimlock Button
 playerAimlockButton.MouseEnter:Connect(function()
-    playerAimlockButton.BackgroundColor3 = playerAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
+    playerAimlockButton.BackgroundColor3 = playerAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
 end)
 playerAimlockButton.MouseLeave:Connect(function()
     playerAimlockButton.BackgroundColor3 = playerAimlockButton.Text == "Player Aimlock Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
@@ -268,9 +255,9 @@ npcAimlockButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 npcAimlockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 npcAimlockButton.Text = "NPC Aimlock Off"
 npcAimlockButton.TextSize = 16
-npcAimlockButton.Font = Enum.Font.GothamSemibold
+npcAimlockButton.Font = Enum.Font.Gotham
 npcAimlockButton.TextScaled = true
-npcAimlockButton.LayoutOrder = 11
+npcAimlockButton.LayoutOrder = 9
 npcAimlockButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to NPC Aimlock Button
@@ -279,13 +266,13 @@ npcAimlockButtonCorner.CornerRadius = UDim.new(0, 6)
 npcAimlockButtonCorner.Parent = npcAimlockButton
 
 local npcAimlockButtonStroke = Instance.new("UIStroke")
-npcAimlockButtonStroke.Color = Color3.fromRGB(100, 100, 100)
+npcAimlockButtonStroke.Color = Color3.fromRGB(80, 80, 255)
 npcAimlockButtonStroke.Thickness = 1
 npcAimlockButtonStroke.Parent = npcAimlockButton
 
 -- Hover effect for NPC Aimlock Button
 npcAimlockButton.MouseEnter:Connect(function()
-    npcAimlockButton.BackgroundColor3 = npcAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
+    npcAimlockButton.BackgroundColor3 = npcAimlockButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
 end)
 npcAimlockButton.MouseLeave:Connect(function()
     npcAimlockButton.BackgroundColor3 = npcAimlockButton.Text == "NPC Aimlock Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
@@ -293,14 +280,14 @@ end)
 
 -- Create Ignore Walls Toggle Button
 local ignoreWallsButton = Instance.new("TextButton")
-ignoreWallsButton.Size = UDim2.new(1, 0, 0,: 40)
+ignoreWallsButton.Size = UDim2.new(1, 0, 0, 40)
 ignoreWallsButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 ignoreWallsButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 ignoreWallsButton.Text = "Ignore Walls Off"
 ignoreWallsButton.TextSize = 16
-ignoreWallsButton.Font = Enum.Font.GothamSemibold
+ignoreWallsButton.Font = Enum.Font.Gotham
 ignoreWallsButton.TextScaled = true
-ignoreWallsButton.LayoutOrder = 12
+ignoreWallsButton.LayoutOrder = 10
 ignoreWallsButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to Ignore Walls Button
@@ -309,50 +296,38 @@ ignoreWallsButtonCorner.CornerRadius = UDim.new(0, 6)
 ignoreWallsButtonCorner.Parent = ignoreWallsButton
 
 local ignoreWallsButtonStroke = Instance.new("UIStroke")
-ignoreWallsButtonStroke.Color = Color3.fromRGB(100, 100, 100)
+ignoreWallsButtonStroke.Color = Color3.fromRGB(80, 80, 255)
 ignoreWallsButtonStroke.Thickness = 1
 ignoreWallsButtonStroke.Parent = ignoreWallsButton
 
 -- Hover effect for Ignore Walls Button
 ignoreWallsButton.MouseEnter:Connect(function()
-    ignoreWallsButton.BackgroundColor3 = ignoreWallsButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
+    ignoreWallsButton.BackgroundColor3 = ignoreWallsButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
 end)
 ignoreWallsButton.MouseLeave:Connect(function()
     ignoreWallsButton.BackgroundColor3 = ignoreWallsButton.Text == "Ignore Walls Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
 end)
 
--- Create Hitbox Section Label
-local hitboxSectionLabel = Instance.new("TextLabel")
-hitboxSectionLabel.Size = UDim2.new(1, 0, 0, 25)
-hitboxSectionLabel.BackgroundTransparency = 1
-hitboxSectionLabel.Text = "Hitbox Settings"
-hitboxSectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-hitboxSectionLabel.TextSize = 18
-hitboxSectionLabel.Font = Enum.Font.GothamSemibold
-hitboxSectionLabel.TextScaled = true
-hitboxSectionLabel.LayoutOrder = 13
-hitboxSectionLabel.Parent = scrollingFrame
-
 -- Create Separator for Hitbox Section
 local hitboxSeparator = Instance.new("Frame")
 hitboxSeparator.Size = UDim2.new(1, 0, 0, 2)
-hitboxSeparator.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+hitboxSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 255)
 hitboxSeparator.BorderSizePixel = 0
-hitboxSeparator.LayoutOrder = 14
+hitboxSeparator.LayoutOrder = 11
 hitboxSeparator.Parent = scrollingFrame
 
 -- Create TextBox for Hitbox Size
 local hitboxSizeTextBox = Instance.new("TextBox")
 hitboxSizeTextBox.Size = UDim2.new(1, 0, 0, 40)
-hitboxSizeTextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+hitboxSizeTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 hitboxSizeTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-hitboxSizeTextBox.PlaceholderText = "Enter hitbox size"
+hitboxSizeTextBox.PlaceholderText = "Hitbox Size"
 hitboxSizeTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
 hitboxSizeTextBox.Text = "20"
 hitboxSizeTextBox.TextSize = 16
 hitboxSizeTextBox.Font = Enum.Font.Gotham
 hitboxSizeTextBox.TextScaled = true
-hitboxSizeTextBox.LayoutOrder = 15
+hitboxSizeTextBox.LayoutOrder = 12
 hitboxSizeTextBox.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to Hitbox Size TextBox
@@ -361,23 +336,28 @@ hitboxSizeTextBoxCorner.CornerRadius = UDim.new(0, 6)
 hitboxSizeTextBoxCorner.Parent = hitboxSizeTextBox
 
 local hitboxSizeTextBoxStroke = Instance.new("UIStroke")
-hitboxSizeTextBoxStroke.Color = Color3.fromRGB(100, 100, 100)
+hitboxSizeTextBoxStroke.Color = Color3.fromRGB(80, 80, 255)
 hitboxSizeTextBoxStroke.Thickness = 1
 hitboxSizeTextBoxStroke.Parent = hitboxSizeTextBox
 
 -- Create TextBox for Hitbox Team Exclusions
 local hitboxTeamTextBox = Instance.new("TextBox")
 hitboxTeamTextBox.Size = UDim2.new(1, 0, 0, 40)
-hitboxTeamTextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+hitboxTeamTextBox.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
 hitboxTeamTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
-hitboxTeamTextBox.PlaceholderText = "Enter team name to exclude"
+hitboxTeamTextBox.PlaceholderText = "Teams to Exclude (comma-separated)"
 hitboxTeamTextBox.PlaceholderColor3 = Color3.fromRGB(150, 150, 150)
-hitboxTeamTextBox.Text = ""
+hitboxTeamTextBox.Text = player.Team and player.Team.Name or ""
 hitboxTeamTextBox.TextSize = 16
 hitboxTeamTextBox.Font = Enum.Font.Gotham
 hitboxTeamTextBox.TextScaled = true
-hitboxTeamTextBox.LayoutOrder = 16
+hitboxTeamTextBox.LayoutOrder = 13
 hitboxTeamTextBox.Parent = scrollingFrame
+
+-- Update hitboxTeamTextBox when player's team changes
+player:GetPropertyChangedSignal("Team"):Connect(function()
+    hitboxTeamTextBox.Text = player.Team and player.Team.Name or ""
+end)
 
 -- Add UICorner and UIStroke to Hitbox Team TextBox
 local hitboxTeamTextBoxCorner = Instance.new("UICorner")
@@ -385,7 +365,7 @@ hitboxTeamTextBoxCorner.CornerRadius = UDim.new(0, 6)
 hitboxTeamTextBoxCorner.Parent = hitboxTeamTextBox
 
 local hitboxTeamTextBoxStroke = Instance.new("UIStroke")
-hitboxTeamTextBoxStroke.Color = Color3.fromRGB(100, 100, 100)
+hitboxTeamTextBoxStroke.Color = Color3.fromRGB(80, 80, 255)
 hitboxTeamTextBoxStroke.Thickness = 1
 hitboxTeamTextBoxStroke.Parent = hitboxTeamTextBox
 
@@ -396,9 +376,9 @@ hitboxButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 hitboxButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 hitboxButton.Text = "Hitbox Off"
 hitboxButton.TextSize = 16
-hitboxButton.Font = Enum.Font.GothamSemibold
+hitboxButton.Font = Enum.Font.Gotham
 hitboxButton.TextScaled = true
-hitboxButton.LayoutOrder = 17
+hitboxButton.LayoutOrder = 14
 hitboxButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to Hitbox Button
@@ -407,97 +387,25 @@ hitboxButtonCorner.CornerRadius = UDim.new(0, 6)
 hitboxButtonCorner.Parent = hitboxButton
 
 local hitboxButtonStroke = Instance.new("UIStroke")
-hitboxButtonStroke.Color = Color3.fromRGB(100, 100, 100)
+hitboxButtonStroke.Color = Color3.fromRGB(80, 80, 255)
 hitboxButtonStroke.Thickness = 1
 hitboxButtonStroke.Parent = hitboxButton
 
 -- Hover effect for Hitbox Button
 hitboxButton.MouseEnter:Connect(function()
-    hitboxButton.BackgroundColor3 = hitboxButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
+    hitboxButton.BackgroundColor3 = hitboxButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
 end)
 hitboxButton.MouseLeave:Connect(function()
     hitboxButton.BackgroundColor3 = hitboxButton.Text == "Hitbox Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
 end)
 
--- Create Toggles Section Label
-local togglesSectionLabel = Instance.new("TextLabel")
-togglesSectionLabel.Size = UDim2.new(1, 0, 0, 25)
-togglesSectionLabel.BackgroundTransparency = 1
-togglesSectionLabel.Text = "Toggle Features"
-togglesSectionLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-togglesSectionLabel.TextSize = 18
-togglesSectionLabel.Font = Enum.Font.GothamSemibold
-togglesSectionLabel.TextScaled = true
-togglesSectionLabel.LayoutOrder = 18
-togglesSectionLabel.Parent = scrollingFrame
-
--- Create Separator for Toggles Section
-local togglesSeparator = Instance.new("Frame")
-togglesSeparator.Size = UDim2.new(1, 0, 0, 2)
-togglesSeparator.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-togglesSeparator.BorderSizePixel karşılaşan 0
-togglesSeparator.LayoutOrder = 19
-togglesSeparator.Parent = scrollingFrame
-
--- Create X-Ray Toggle Button
-local xrayButton = Instance.new("TextButton")
-xrayButton.Size = UDim2.new(1, 0, 0, 40)
-xrayButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-xrayButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-xrayButton.Text = "X-Ray Off"
-xrayButton.TextSize = 16
-xrayButton.Font = Enum.Font.GothamSemibold
-xrayButton.TextScaled = true
-xrayButton.LayoutOrder = 20
-xrayButton.Parent = scrollingFrame
-
--- Add UICorner and UIStroke to X-Ray Button
-local xrayButtonCorner = Instance.new("UICorner")
-xrayButtonCorner.CornerRadius = UDim.new(0, 6)
-xrayButtonCorner.Parent = xrayButton
-
-local xrayButtonStroke = Instance.new("UIStroke")
-xrayButtonStroke.Color = Color3.fromRGB(100, 100, 100)
-xrayButtonStroke.Thickness = 1
-xrayButtonStroke.Parent = xrayButton
-
--- Hover effect for X-Ray Button
-xrayButton.MouseEnter:Connect(function()
-    xrayButton.BackgroundColor3 = xrayButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
-end)
-xrayButton.MouseLeave:Connect(function()
-    xrayButton.BackgroundColor3 = xrayButton.Text == "X-Ray Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
-end)
-
--- Create NoClip Toggle Button
-local noclipButton = Instance.new("TextButton")
-noclipButton.Size = UDim2.new(1, 0, 0, 40)
-noclipButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-noclipButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-noclipButton.Text = "NoClip Off"
-noclipButton.TextSize = 16
-noclipButton.Font = Enum.Font.GothamSemibold
-noclipButton.TextScaled = true
-noclipButton.LayoutOrder = 21
-noclipButton.Parent = scrollingFrame
-
--- Add UICorner and UIStroke to NoClip Button
-local noclipButtonCorner = Instance.new("UICorner")
-noclipButtonCorner.CornerRadius = UDim.new(0, 6)
-noclipButtonCorner.Parent = noclipButton
-
-local noclipButtonStroke = Instance.new("UIStroke")
-noclipButtonStroke.Color = Color3.fromRGB(100, 100, 100)
-noclipButtonStroke.Thickness = 1
-noclipButtonStroke.Parent = noclipButton
-
--- Hover effect for NoClip Button
-noclipButton.MouseEnter:Connect(function()
-    noclipButton.BackgroundColor3 = noclipButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
-end)
-noclipButton.MouseLeave:Connect(function()
-    noclipButton.BackgroundColor3 = noclipButton.Text == "NoClip Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
-end)
+-- Create Separator for ESP Section
+local espSeparator = Instance.new("Frame")
+espSeparator.Size = UDim2.new(1, 0, 0, 2)
+espSeparator.BackgroundColor3 = Color3.fromRGB(80, 80, 255)
+espSeparator.BorderSizePixel = 0
+espSeparator.LayoutOrder = 15
+espSeparator.Parent = scrollingFrame
 
 -- Create ESP Toggle Button
 local espButton = Instance.new("TextButton")
@@ -506,9 +414,9 @@ espButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
 espButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 espButton.Text = "ESP Off"
 espButton.TextSize = 16
-espButton.Font = Enum.Font.GothamSemibold
+espButton.Font = Enum.Font.Gotham
 espButton.TextScaled = true
-espButton.LayoutOrder = 22
+espButton.LayoutOrder = 16
 espButton.Parent = scrollingFrame
 
 -- Add UICorner and UIStroke to ESP Button
@@ -517,89 +425,29 @@ espButtonCorner.CornerRadius = UDim.new(0, 6)
 espButtonCorner.Parent = espButton
 
 local espButtonStroke = Instance.new("UIStroke")
-espButtonStroke.Color = Color3.fromRGB(100, 100, 100)
+espButtonStroke.Color = Color3.fromRGB(80, 80, 255)
 espButtonStroke.Thickness = 1
 espButtonStroke.Parent = espButton
 
 -- Hover effect for ESP Button
 espButton.MouseEnter:Connect(function()
-    espButton.BackgroundColor3 = espButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
+    espButton.BackgroundColor3 = espButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
 end)
 espButton.MouseLeave:Connect(function()
     espButton.BackgroundColor3 = espButton.Text == "ESP Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
-end)
-
--- Create FullBright Toggle Button
-local fullbrightButton = Instance.new("TextButton")
-fullbrightButton.Size = UDim2.new(1, 0, 0, 40)
-fullbrightButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-fullbrightButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-fullbrightButton.Text = "FullBright Off"
-fullbrightButton.TextSize = 16
-fullbrightButton.Font = Enum.Font.GothamSemibold
-fullbrightButton.TextScaled = true
-fullbrightButton.LayoutOrder = 23
-fullbrightButton.Parent = scrollingFrame
-
--- Add UICorner and UIStroke to FullBright Button
-local fullbrightButtonCorner = Instance.new("UICorner")
-fullbrightButtonCorner.CornerRadius = UDim.new(0, 6)
-fullbrightButtonCorner.Parent = fullbrightButton
-
-local fullbrightButtonStroke = Instance.new("UIStroke")
-fullbrightButtonStroke.Color = Color3.fromRGB(100, 100, 100)
-fullbrightButtonStroke.Thickness = 1
-fullbrightButtonStroke.Parent = fullbrightButton
-
--- Hover effect for FullBright Button
-fullbrightButton.MouseEnter:Connect(function()
-    fullbrightButton.BackgroundColor3 = fullbrightButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
-end)
-fullbrightButton.MouseLeave:Connect(function()
-    fullbrightButton.BackgroundColor3 = fullbrightButton.Text == "FullBright Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
-end)
-
--- Create Camera Shake Toggle Button
-local cameraShakeButton = Instance.new("TextButton")
-cameraShakeButton.Size = UDim2.new(1, 0, 0, 40)
-cameraShakeButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-cameraShakeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-cameraShakeButton.Text = "CamShake Off"
-cameraShakeButton.TextSize = 16
-cameraShakeButton.Font = Enum.Font.GothamSemibold
-cameraShakeButton.TextScaled = true
-cameraShakeButton.LayoutOrder = 24
-cameraShakeButton.Parent = scrollingFrame
-
--- Add UICorner and UIStroke to Camera Shake Button
-local cameraShakeButtonCorner = Instance.new("UICorner")
-cameraShakeButtonCorner.CornerRadius = UDim.new(0, 6)
-cameraShakeButtonCorner.Parent = cameraShakeButton
-
-local cameraShakeButtonStroke = Instance.new("UIStroke")
-cameraShakeButtonStroke.Color = Color3.fromRGB(100, 100, 100)
-cameraShakeButtonStroke.Thickness = 1
-cameraShakeButtonStroke.Parent = cameraShakeButton
-
--- Hover effect for Camera Shake Button
-cameraShakeButton.MouseEnter:Connect(function()
-    cameraShakeButton.BackgroundColor3 = cameraShakeButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
-end)
-cameraShakeButton.MouseLeave:Connect(function()
-    cameraShakeButton.BackgroundColor3 = cameraShakeButton.Text == "CamShake Off" and Color3.fromRGB(200, 0, 0) or Color3.fromRGB(0, 200, 0)
 end)
 
 -- Create Toggle Button (outside ScrollingFrame)
 local toggleButton = Instance.new("TextButton")
 toggleButton.Size = UDim2.new(0, 120, 0, 40)
 toggleButton.Position = UDim2.new(0, 10, 0, 10)
-toggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+toggleButton.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
 toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 toggleButton.Text = "Off"
 toggleButton.TextSize = 16
 toggleButton.Active = true
 toggleButton.Draggable = true
-toggleButton.Font = Enum.Font.GothamSemibold
+toggleButton.Font = Enum.Font.Gotham
 toggleButton.TextScaled = true
 toggleButton.Parent = screenGui
 
@@ -609,16 +457,16 @@ toggleButtonCorner.CornerRadius = UDim.new(0, 6)
 toggleButtonCorner.Parent = toggleButton
 
 local toggleButtonStroke = Instance.new("UIStroke")
-toggleButtonStroke.Color = Color3.fromRGB(100, 100, 100)
+toggleButtonStroke.Color = Color3.fromRGB(80, 80, 255)
 toggleButtonStroke.Thickness = 1
 toggleButtonStroke.Parent = toggleButton
 
 -- Hover effect for Toggle Button
 toggleButton.MouseEnter:Connect(function()
-    toggleButton.BackgroundColor3 = toggleButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.15)
+    toggleButton.BackgroundColor3 = toggleButton.BackgroundColor3:Lerp(Color3.fromRGB(255, 255, 255), 0.2)
 end)
 toggleButton.MouseLeave:Connect(function()
-    toggleButton.BackgroundColor3 = toggleButton.Text == "Off" and Color3.fromRGB(40, 40, 40) or Color3.fromRGB(0, 200, 0)
+    toggleButton.BackgroundColor3 = toggleButton.Text == "Off" and Color3.fromRGB(25, 25, 25) or Color3.fromRGB(0, 200, 0)
 end)
 
 -- Dynamically update CanvasSize based on content
@@ -643,33 +491,10 @@ local tpwalking = false
 local speedMultiplier = 1
 local tpConnection
 
--- X-Ray variables
-local xrayEnabled = false
-local originalProperties = {}
-
--- NoClip variables
-local noclipEnabled = false
-
 -- ESP variables
 local espEnabled = false
 local highlights = {}
 local beams = {}
-
--- FullBright variables
-local fullbrightEnabled = false
-local originalLighting = {
-    Brightness = Lighting.Brightness,
-    Ambient = Lighting.Ambient,
-    GlobalShadows = Lighting.GlobalShadows
-}
-
--- Camera Shake variables
-local cameraShakeEnabled = false
-local blurEffect = Instance.new("BlurEffect")
-blurEffect.Size = 0
-blurEffect.Parent = Lighting
-local tweenTime = 0.2
-local defaultFOV = Camera.FieldOfView
 
 -- Aimlock variables
 local playerAimlockEnabled = false
@@ -696,6 +521,15 @@ local function parseInput(input)
         items[#items + 1] = item:match("^%s*(.-)%s*$")
     end
     return items
+end
+
+-- Function to get aimlock range
+local function getAimlockRange()
+    local range = tonumber(rangeTextBox.Text)
+    if not range or range < 0 then
+        return 0
+    end
+    return range
 end
 
 -- Function to get hitbox size
@@ -738,15 +572,6 @@ local function isInFOV(targetPos)
     local toTarget = (targetPos - cameraCFrame.Position).Unit
     local angle = math.deg(math.acos(cameraForward:Dot(toTarget)))
     return angle <= FOV_ANGLE / 2
-end
-
--- Function to get aimlock range
-local function getAimlockRange()
-    local range = tonumber(rangeTextBox.Text)
-    if not range or range < 0 then
-        return 0
-    end
-    return range
 end
 
 -- Function to update NPC cache
@@ -793,7 +618,7 @@ local function findClosestTarget()
         return target
     end
     lastTargetSearch = currentTime
-    local excludedTeam = teamTextBox.Text:lower():match("^%s*(.-)%s*$")
+    local excludedTeams = parseInput(teamTextBox.Text)
     local npcNames = parseInput(npcTextBox.Text)
     local lowerNpcNames = {}
     for _, name in pairs(npcNames) do
@@ -825,9 +650,12 @@ local function findClosestTarget()
                 local rootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart") or otherPlayer.Character:FindFirstChild("Head")
                 if humanoid and rootPart and humanoid.Health > 0 then
                     local teamValid = true
-                    if otherPlayer.Team and excludedTeam ~= "" then
-                        if otherPlayer.Team.Name:lower() == excludedTeam then
-                            teamValid = false
+                    if otherPlayer.Team and #excludedTeams > 0 then
+                        for _, teamName in pairs(excludedTeams) do
+                            if otherPlayer.Team.Name:lower() == teamName:lower() then
+                                teamValid = false
+                                break
+                            end
                         end
                     end
                     local distance = (localHead.Position - rootPart.Position).Magnitude
@@ -842,6 +670,118 @@ local function findClosestTarget()
         end
     end
     return closestTarget
+end
+
+-- TPWalk function
+local function startTPWalk()
+    if tpwalking then
+        tpwalking = false
+        tpWalkButton.Text = "Enable TPWalk"
+        tpWalkButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
+        if tpConnection then
+            tpConnection:Disconnect()
+        end
+        return
+    end
+    local multiplier = tonumber(speedTextBox.Text)
+    if not multiplier then
+        warn("Please enter a valid number for TPWalk speed")
+        return
+    end
+    speedMultiplier = multiplier
+    tpwalking = true
+    tpWalkButton.Text = "Disable TPWalk"
+    tpWalkButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    local character = player.Character
+    local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
+    if character and humanoid and humanoid.Parent then
+        tpConnection = RunService.Heartbeat:Connect(function(delta)
+            if not tpwalking or not character or not humanoid or not humanoid.Parent then
+                if tpConnection then
+                    tpConnection:Disconnect()
+                end
+                return
+            end
+            if humanoid.MoveDirection.Magnitude > 0 then
+                local tpwalkSpeed = humanoid.WalkSpeed * speedMultiplier
+                character:TranslateBy(humanoid.MoveDirection * delta * tpwalkSpeed)
+            end
+        end)
+    end
+end
+
+-- ESP and Tracers function
+local function toggleESP()
+    espEnabled = not espEnabled
+    espButton.Text = espEnabled and "ESP On" or "ESP Off"
+    espButton.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
+    local function updateESP()
+        for _, highlight in pairs(highlights) do
+            if highlight then highlight:Destroy() end
+        end
+        for _, beam in pairs(beams) do
+            if beam then beam:Destroy() end
+        end
+        highlights = {}
+        beams = {}
+        if not espEnabled then return end
+        local localChar = player.Character
+        if not localChar or not localChar:FindFirstChild("HumanoidRootPart") then
+            return
+        end
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
+            if otherPlayer ~= player then
+                local playerChar = otherPlayer.Character
+                if playerChar and playerChar:FindFirstChild("HumanoidRootPart") then
+                    local espColor = Color3.fromRGB(255, 0, 0)
+                    if #Teams:GetTeams() > 0 and otherPlayer.Team then
+                        espColor = otherPlayer.Team.TeamColor.Color
+                    end
+                    local highlight = Instance.new("Highlight")
+                    highlight.Name = "ESPHighlight"
+                    highlight.FillColor = espColor
+                    highlight.OutlineColor = espColor
+                    highlight.Parent = playerChar
+                    highlights[otherPlayer] = highlight
+                    local attachment0 = Instance.new("Attachment")
+                    attachment0.Parent = localChar:FindFirstChild("HumanoidRootPart")
+                    local attachment1 = Instance.new("Attachment")
+                    attachment1.Parent = playerChar:FindFirstChild("HumanoidRootPart")
+                    local beam = Instance.new("Beam")
+                    beam.Name = "ESPBeam"
+                    beam.Attachment0 = attachment0
+                    beam.Attachment1 = attachment1
+                    beam.Color = ColorSequence.new(espColor)
+                    beam.FaceCamera = true
+                    beam.Width0 = 0.15
+                    beam.Width1 = 0.15
+                    beam.Parent = playerChar
+                    beams[otherPlayer] = beam
+                end
+            end
+        end
+    end
+    updateESP()
+    for _, otherPlayer in pairs(Players:GetPlayers()) do
+        if otherPlayer ~= player then
+            otherPlayer.CharacterAdded:Connect(function()
+                if espEnabled then
+                    wait(0.1)
+                    updateESP()
+                end
+            end)
+            otherPlayer.CharacterRemoving:Connect(function()
+                if highlights[otherPlayer] then
+                    highlights[otherPlayer]:Destroy()
+                    highlights[otherPlayer] = nil
+                end
+                if beams[otherPlayer] then
+                    beams[otherPlayer]:Destroy()
+                    beams[otherPlayer] = nil
+                end
+            end)
+        end
+    end
 end
 
 -- Function to toggle ignore walls
@@ -866,16 +806,19 @@ local function toggleHitbox()
             if not localPlayer or not localPlayer.Character then
                 return
             end
-            local excludedTeam = hitboxTeamTextBox.Text:lower():match("^%s*(.-)%s*$")
+            local excludedTeams = parseInput(hitboxTeamTextBox.Text)
             local headSize = getHitboxSize()
             for _, otherPlayer in ipairs(Players:GetPlayers()) do
                 if otherPlayer ~= localPlayer and otherPlayer.Character then
                     local humanoidRootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart")
                     if humanoidRootPart then
                         local teamValid = true
-                        if excludedTeam ~= "" and otherPlayer.Team then
-                            if otherPlayer.Team.Name:lower() == excludedTeam then
-                                teamValid = false
+                        if #excludedTeams > 0 and otherPlayer.Team then
+                            for _, teamName in pairs(excludedTeams) do
+                                if otherPlayer.Team.Name:lower() == teamName:lower() then
+                                    teamValid = false
+                                    break
+                                end
                             end
                         end
                         if teamValid then
@@ -923,17 +866,10 @@ end
 -- Function to reapply hitbox on respawn
 local function reapplyHitbox()
     if hitboxEnabled then
-        local wasEnabled = hitboxEnabled
         toggleHitbox()
         toggleHitbox()
     end
 end
-
--- Connect hitbox toggle
-hitboxButton.MouseButton1Click:Connect(toggleHitbox)
-
--- Connect player respawn
-player.CharacterAdded:Connect(reapplyHitbox)
 
 -- Function to toggle player aimlock
 local function togglePlayerAimlock()
@@ -1039,196 +975,10 @@ local function toggleNPCAimlock()
     end
 end
 
--- TPWalk function
-local function startTPWalk()
-    if tpwalking then
-        tpwalking = false
-        applyButton.Text = "Enable TPWalk"
-        applyButton.BackgroundColor3 = Color3.fromRGB(0, 200, 0)
-        if tpConnection then
-            tpConnection:Disconnect()
-        end
-        return
-    end
-    local multiplier = tonumber(speedTextBox.Text)
-    if not multiplier then
-        warn("Please enter a valid number for TPWalk speed")
-        return
-    end
-    speedMultiplier = multiplier
-    tpwalking = true
-    applyButton.Text = "Disable TPWalk"
-    applyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    local character = player.Character
-    local humanoid = character and character:FindFirstChildWhichIsA("Humanoid")
-    if character and humanoid and humanoid.Parent then
-        tpConnection = RunService.Heartbeat:Connect(function(delta)
-            if not tpwalking or not character or not humanoid or not humanoid.Parent then
-                if tpConnection then
-                    tpConnection:Disconnect()
-                end
-                return
-            end
-            if humanoid.MoveDirection.Magnitude > 0 then
-                local tpwalkSpeed = humanoid.WalkSpeed * speedMultiplier
-                character:TranslateBy(humanoid.MoveDirection * delta * tpwalkSpeed)
-            end
-        end)
-    end
-end
-
--- X-Ray function
-local function toggleXRay()
-    xrayEnabled = not xrayEnabled
-    xrayButton.Text = xrayEnabled and "X-Ray On" or "X-Ray Off"
-    xrayButton.BackgroundColor3 = xrayEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    if xrayEnabled then
-        for _, part in pairs(workspace:GetDescendants()) do
-            if part:IsA("BasePart") and not part.Parent:FindFirstChildWhichIsA("Humanoid") then
-                originalProperties[part] = {
-                    Transparency = part.Transparency,
-                    LocalTransparencyModifier = part.LocalTransparencyModifier
-                }
-                part.LocalTransparencyModifier = 0.5
-            end
-        end
-    else
-        for part, properties in pairs(originalProperties) do
-            if part and part.Parent then
-                part.LocalTransparencyModifier = properties.LocalTransparencyModifier
-                part.Transparency = properties.Transparency
-            end
-        end
-        originalProperties = {}
-    end
-end
-
--- NoClip function
-local function toggleNoClip()
-    noclipEnabled = not noclipEnabled
-    noclipButton.Text = noclipEnabled and "NoClip On" or "NoClip Off"
-    noclipButton.BackgroundColor3 = noclipEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    local character = player.Character
-    if character then
-        for _, v in pairs(character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = not noclipEnabled
-            end
-        end
-    end
-end
-
--- ESP and Tracers function
-local function toggleESP()
-    espEnabled = not espEnabled
-    espButton.Text = espEnabled and "ESP On" or "ESP Off"
-    espButton.BackgroundColor3 = espEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    local function updateESP()
-        for _, highlight in pairs(highlights) do
-            if highlight then highlight:Destroy() end
-        end
-        for _, beam in pairs(beams) do
-            if beam then beam:Destroy() end
-        end
-        highlights = {}
-        beams = {}
-        if not espEnabled then return end
-        local localChar = player.Character
-        if not localChar or not localChar:FindFirstChild("HumanoidRootPart") then
-            return
-        end
-        for _, otherPlayer in pairs(Players:GetPlayers()) do
-            if otherPlayer ~= player then
-                local playerChar = otherPlayer.Character
-                if playerChar and playerChar:FindFirstChild("HumanoidRootPart") then
-                    local espColor = Color3.fromRGB(255, 0, 0)
-                    if #Teams:GetTeams() > 0 and otherPlayer.Team then
-                        espColor = otherPlayer.Team.TeamColor.Color
-                    end
-                    local highlight = Instance.new("Highlight")
-                    highlight.Name = "ESPHighlight"
-                    highlight.FillColor = espColor
-                    highlight.OutlineColor = espColor
-                    highlight.Parent = playerChar
-                    highlights[otherPlayer] = highlight
-                    local attachment0 = Instance.new("Attachment")
-                    attachment0.Parent = localChar:FindFirstChild("HumanoidRootPart")
-                    local attachment1 = Instance.new("Attachment")
-                    attachment1.Parent = playerChar:FindFirstChild("HumanoidRootPart")
-                    local beam = Instance.new("Beam")
-                    beam.Name = "ESPBeam"
-                    beam.Attachment0 = attachment0
-                    beam.Attachment1 = attachment1
-                    beam.Color = ColorSequence.new(espColor)
-                    beam.FaceCamera = true
-                    beam.Width0 = 0.15
-                    beam.Width1 = 0.15
-                    beam.Parent = playerChar
-                    beams[otherPlayer] = beam
-                end
-            end
-        end
-    end
-    updateESP()
-    for _, otherPlayer in pairs(Players:GetPlayers()) do
-        if otherPlayer ~= player then
-            otherPlayer.CharacterAdded:Connect(function()
-                if espEnabled then
-                    wait(0.1)
-                    updateESP()
-                end
-            end)
-            otherPlayer.CharacterRemoving:Connect(function()
-                if highlights[otherPlayer] then
-                    highlights[otherPlayer]:Destroy()
-                    highlights[otherPlayer] = nil
-                end
-                if beams[otherPlayer] then
-                    beams[otherPlayer]:Destroy()
-                    beams[otherPlayer] = nil
-                end
-            end)
-        end
-    end
-end
-
--- FullBright function
-local function toggleFullBright()
-    fullbrightEnabled = not fullbrightEnabled
-    fullbrightButton.Text = fullbrightEnabled and "FullBright On" or "FullBright Off"
-    fullbrightButton.BackgroundColor3 = fullbrightEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    if fullbrightEnabled then
-        Lighting.Brightness = 1
-        Lighting.Ambient = Color3.fromRGB(255, 255, 255)
-        Lighting.GlobalShadows = false
-    else
-        Lighting.Brightness = originalLighting.Brightness
-        Lighting.Ambient = originalLighting.Ambient
-        Lighting.GlobalShadows = originalLighting.GlobalShadows
-    end
-end
-
--- Camera Shake function
-local function toggleCameraShake()
-    cameraShakeEnabled = not cameraShakeEnabled
-    cameraShakeButton.Text = cameraShakeEnabled and "CamShake On" or "CamShake Off"
-    cameraShakeButton.BackgroundColor3 = cameraShakeEnabled and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(200, 0, 0)
-    if cameraShakeEnabled then
-        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = 60}):Play()
-        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 10}):Play()
-    else
-        TweenService:Create(Camera, TweenInfo.new(tweenTime), {FieldOfView = defaultFOV}):Play()
-        TweenService:Create(blurEffect, TweenInfo.new(tweenTime), {Size = 0}):Play()
-    end
-end
-
 -- Connect buttons
-applyButton.MouseButton1Click:Connect(startTPWalk)
-xrayButton.MouseButton1Click:Connect(toggleXRay)
-noclipButton.MouseButton1Click:Connect(toggleNoClip)
+tpWalkButton.MouseButton1Click:Connect(startTPWalk)
 espButton.MouseButton1Click:Connect(toggleESP)
-fullbrightButton.MouseButton1Click:Connect(toggleFullBright)
-cameraShakeButton.MouseButton1Click:Connect(toggleCameraShake)
+hitboxButton.MouseButton1Click:Connect(toggleHitbox)
 playerAimlockButton.MouseButton1Click:Connect(togglePlayerAimlock)
 npcAimlockButton.MouseButton1Click:Connect(toggleNPCAimlock)
 ignoreWallsButton.MouseButton1Click:Connect(toggleIgnoreWalls)
@@ -1237,16 +987,8 @@ ignoreWallsButton.MouseButton1Click:Connect(toggleIgnoreWalls)
 toggleButton.MouseButton1Click:Connect(function()
     scrollingFrame.Visible = not scrollingFrame.Visible
     toggleButton.Text = scrollingFrame.Visible and "On" or "Off"
-    toggleButton.BackgroundColor3 = scrollingFrame.Visible and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(40, 40, 40)
+    toggleButton.BackgroundColor3 = scrollingFrame.Visible and Color3.fromRGB(0, 200, 0) or Color3.fromRGB(25, 25, 25)
 end)
 
--- Handle character added for NoClip
-player.CharacterAdded:Connect(function(character)
-    if noclipEnabled then
-        for _, v in pairs(character:GetDescendants()) do
-            if v:IsA("BasePart") then
-                v.CanCollide = false
-            end
-        end
-    end
-end)
+-- Handle character added for hitbox
+player.CharacterAdded:Connect(reapplyHitbox)
