@@ -818,7 +818,7 @@ local function findClosestTarget()
         end
     end
     if playerAimlockEnabled and not closestTarget then
-        for _, otherPlayer in pairs(Players、一般的に言えば、Players:GetPlayers()) do
+        for _, otherPlayer in pairs(Players:GetPlayers()) do
             if otherPlayer ~= player and otherPlayer.Character then
                 local humanoid = otherPlayer.Character:FindFirstChildWhichIsA("Humanoid")
                 local rootPart = otherPlayer.Character:FindFirstChild("HumanoidRootPart") or otherPlayer.Character:FindFirstChild("Head")
